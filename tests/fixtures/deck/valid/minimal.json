@@ -1,0 +1,91 @@
+{
+  "irVersion": "0.1.0",
+  "meta": { "title": "OrderFlow — pilot review", "locale": "es" },
+  "project": {
+    "name": "OrderFlow",
+    "oneLiner": "Purchase-order approvals without the email threads."
+  },
+  "audience": { "preset": "executive", "locale": "es" },
+  "narrative": {
+    "preset": "executive",
+    "throughline": "The pilot proved the approval bottleneck can be removed.",
+    "sections": [
+      { "id": "sec-context", "title": "Context", "purpose": "Frame the approval bottleneck." },
+      { "id": "sec-results", "title": "Results", "purpose": "Show the pilot outcome." }
+    ]
+  },
+  "theme": { "name": "executive", "aspectRatio": "16:9", "mode": "auto" },
+  "provenance": {
+    "sources": [{ "id": "brief", "kind": "pdf", "title": "OrderFlow product brief" }]
+  },
+  "slides": [
+    {
+      "id": "sld-cover",
+      "index": 0,
+      "kind": "cover",
+      "title": "OrderFlow",
+      "keyMessage": "Approvals in hours, not days.",
+      "narrativePurpose": "context",
+      "layout": "centered",
+      "blocks": [],
+      "checks": {}
+    },
+    {
+      "id": "sld-problem",
+      "index": 1,
+      "sectionId": "sec-context",
+      "kind": "content",
+      "title": "The bottleneck",
+      "keyMessage": "Purchase orders stall for four days in email.",
+      "narrativePurpose": "problem",
+      "layout": "single",
+      "blocks": [
+        {
+          "id": "blk-problem-text",
+          "type": "text",
+          "text": "Approvers work from forwarded email threads with no shared state, so a single unavailable manager blocks the order.",
+          "sourceRefs": [{ "sourceId": "brief", "locator": { "kind": "page", "page": 1 } }]
+        }
+      ],
+      "checks": { "visualQa": "pending" }
+    },
+    {
+      "id": "sld-result",
+      "index": 2,
+      "sectionId": "sec-results",
+      "kind": "metrics",
+      "title": "Pilot result",
+      "keyMessage": "Cycle time fell from four days to just over one.",
+      "narrativePurpose": "impact",
+      "layout": "single",
+      "blocks": [
+        {
+          "id": "blk-metric",
+          "type": "metric",
+          "label": "Approval cycle time",
+          "value": "1.2",
+          "unit": "days",
+          "delta": "-70%",
+          "direction": "down-good",
+          "sourceRefs": [{ "sourceId": "brief", "locator": { "kind": "page", "page": 4 } }]
+        }
+      ],
+      "evidence": [
+        {
+          "claimId": "clm-cycle",
+          "factType": "FACT",
+          "statement": "Cycle time dropped 70% in the pilot.",
+          "sourceRefs": [
+            {
+              "sourceId": "brief",
+              "locator": { "kind": "page", "page": 4 },
+              "quote": "1.2d vs 4d baseline"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    }
+  ],
+  "diagrams": []
+}

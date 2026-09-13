@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arclume.dev/schema/project-knowledge.json",
+  "title": "Arclume ProjectKnowledge",
+  "description": "Presentation-independent structured model of a project. Built once; many decks can be derived from it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "knowledgeVersion",
+    "project",
+    "sources",
+    "capabilities",
+    "components",
+    "actors",
+    "dependencies",
+    "processes",
+    "phases",
+    "milestones",
+    "metrics",
+    "risks",
+    "decisions",
+    "requirements",
+    "technologies",
+    "results",
+    "constraints",
+    "relations",
+    "claims",
+    "gaps"
+  ],
+  "properties": {
+    "knowledgeVersion": { "$ref": "https://arclume.dev/schema/common.json#/$defs/semver" },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generatedAt": { "$ref": "https://arclume.dev/schema/common.json#/$defs/isoDateTime" },
+        "generator": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "contentHash": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" }
+      }
+    },
+    "project": { "$ref": "#/$defs/project" },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/source" }
+    },
+    "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } },
+    "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
+    "actors": { "type": "array", "items": { "$ref": "#/$defs/actor" } },
+    "dependencies": { "type": "array", "items": { "$ref": "#/$defs/dependency" } },
+    "processes": { "type": "array", "items": { "$ref": "#/$defs/process" } },
+    "phases": { "type": "array", "items": { "$ref": "#/$defs/phase" } },
+    "milestones": { "type": "array", "items": { "$ref": "#/$defs/milestone" } },
+    "metrics": { "type": "array", "items": { "$ref": "#/$defs/metric" } },
+    "risks": { "type": "array", "items": { "$ref": "#/$defs/risk" } },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/decision" } },
+    "requirements": { "type": "array", "items": { "$ref": "#/$defs/requirement" } },
+    "technologies": { "type": "array", "items": { "$ref": "#/$defs/technology" } },
+    "results": { "type": "array", "items": { "$ref": "#/$defs/result" } },
+    "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+    "relations": {
+      "type": "array",
+      "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/relation" }
+    },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/claim" }
+    },
+    "gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } }
+  },
+  "$defs": {
+    "sourceRefs": { "$ref": "https://arclume.dev/schema/common.json#/$defs/sourceRefArray" },
+    "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+    "shortText": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+    "longText": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "summary": { "$ref": "#/$defs/longText" },
+        "purpose": { "$ref": "#/$defs/longText" },
+        "problem": { "$ref": "#/$defs/longText" },
+        "solution": { "$ref": "#/$defs/longText" },
+        "status": { "$ref": "#/$defs/longText" },
+        "nextSteps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/shortText" },
+          "maxItems": 24
+        },
+        "tags": { "$ref": "https://arclume.dev/schema/common.json#/$defs/tags" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "description": { "$ref": "#/$defs/longText" },
+        "tags": { "$ref": "https://arclume.dev/schema/common.json#/$defs/tags" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "kind": {
+          "type": "string",
+          "enum": ["service", "ui", "store", "job", "library", "gateway", "external", "other"]
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/shortText" },
+          "maxItems": 24
+        },
+        "technologies": { "$ref": "https://arclume.dev/schema/common.json#/$defs/idArray" },
+        "tags": { "$ref": "https://arclume.dev/schema/common.json#/$defs/tags" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "type": { "type": "string", "enum": ["human", "system", "organization", "other"] },
+        "description": { "$ref": "#/$defs/longText" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "version": { "$ref": "#/$defs/shortText" },
+        "scope": {
+          "type": "string",
+          "enum": ["runtime", "dev", "peer", "optional", "service", "other"]
+        },
+        "ecosystem": { "$ref": "#/$defs/shortText" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "trigger": { "$ref": "#/$defs/shortText" },
+        "steps": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label"],
+            "properties": {
+              "label": { "$ref": "#/$defs/shortText" },
+              "detail": { "$ref": "#/$defs/longText" }
+            }
+          }
+        },
+        "outcome": { "$ref": "#/$defs/longText" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "status": {
+          "type": "string",
+          "enum": ["planned", "active", "done", "blocked", "cancelled"]
+        },
+        "start": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+        "end": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+        "summary": { "$ref": "#/$defs/longText" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "milestone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "date": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+        "achieved": { "type": "boolean" },
+        "phaseId": { "$ref": "#/$defs/id" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "value": { "$ref": "#/$defs/shortText" },
+        "unit": { "$ref": "#/$defs/shortText" },
+        "baseline": { "$ref": "#/$defs/shortText" },
+        "target": { "$ref": "#/$defs/shortText" },
+        "asOf": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+        "direction": { "type": "string", "enum": ["up-good", "down-good", "neutral"] },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "factType", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/longText" },
+        "likelihood": { "type": "string", "enum": ["low", "medium", "high", "unknown"] },
+        "impact": { "type": "string", "enum": ["low", "medium", "high", "unknown"] },
+        "mitigation": { "$ref": "#/$defs/longText" },
+        "factType": { "$ref": "https://arclume.dev/schema/common.json#/$defs/factType" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/longText" },
+        "rationale": { "$ref": "#/$defs/longText" },
+        "date": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+        "status": {
+          "type": "string",
+          "enum": ["proposed", "accepted", "superseded", "rejected"]
+        },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/longText" },
+        "kind": {
+          "type": "string",
+          "enum": ["functional", "non-functional", "constraint", "assumption"]
+        },
+        "priority": { "type": "string", "enum": ["must", "should", "could", "wont"] },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "technology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "language",
+            "framework",
+            "runtime",
+            "database",
+            "infra",
+            "saas",
+            "library",
+            "tool",
+            "protocol",
+            "other"
+          ]
+        },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/longText" },
+        "metricId": { "$ref": "#/$defs/id" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "sourceRefs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/longText" },
+        "kind": {
+          "type": "string",
+          "enum": ["technical", "business", "legal", "time", "budget", "other"]
+        },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "question": { "$ref": "#/$defs/longText" },
+        "why": { "$ref": "#/$defs/longText" },
+        "blocks": {
+          "$ref": "https://arclume.dev/schema/common.json#/$defs/idArray",
+          "description": "Ids of entities whose confidence is limited by this gap."
+        },
+        "severity": { "type": "string", "enum": ["low", "medium", "high"] }
+      }
+    }
+  }
+}

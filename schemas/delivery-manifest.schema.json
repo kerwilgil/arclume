@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arclume.dev/schema/delivery-manifest.json",
+  "title": "Arclume atomic delivery manifest",
+  "description": "Lists every artifact in a delivery bundle with its SHA-256 and byte length, sorted by path. The manifest never lists itself. The `path` pattern forbids `.`/`..` segments, leading/trailing slashes and `manifest.json`, but filesystem safety is enforced by `validateBundleRelativePath` + resolve confinement at runtime, not by this regex alone (see docs/ATOMIC_DELIVERY.md).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "deliveryId", "entries"],
+  "properties": {
+    "manifestVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "deliveryId": { "type": "string", "pattern": "^[0-9a-f]{16,64}$" },
+    "visualQa": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid", "version"],
+      "properties": {
+        "valid": { "type": "boolean" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "bytes", "sha256"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(?!manifest\\.json$)(?!\\.{1,2}(/|$))[A-Za-z0-9._-]+(/(?!\\.{1,2}(/|$))[A-Za-z0-9._-]+)*$"
+          },
+          "bytes": { "type": "integer", "minimum": 0 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    }
+  }
+}

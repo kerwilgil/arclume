@@ -1,0 +1,8 @@
+# This is a TEST FIXTURE .gitignore, exercised by the ingestion tests.
+# `notes.local.md` is intentionally listed here AND intentionally committed
+# (via `git add -f`) so a test can verify discovery skips it as `ignored`.
+dist/
+node_modules/
+*.tmp
+notes.local.md
+data/

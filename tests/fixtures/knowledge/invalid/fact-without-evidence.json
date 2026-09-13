@@ -1,0 +1,29 @@
+{
+  "knowledgeVersion": "0.1.0",
+  "project": { "id": "x", "name": "X", "sourceRefs": [] },
+  "sources": [{ "id": "s1", "kind": "text", "title": "note" }],
+  "capabilities": [],
+  "components": [],
+  "actors": [],
+  "dependencies": [],
+  "processes": [],
+  "phases": [],
+  "milestones": [],
+  "metrics": [],
+  "risks": [],
+  "decisions": [],
+  "requirements": [],
+  "technologies": [],
+  "results": [],
+  "constraints": [],
+  "relations": [],
+  "claims": [
+    {
+      "id": "clm-1",
+      "statement": "Adoption grew 300% last quarter.",
+      "factType": "FACT",
+      "sourceRefs": []
+    }
+  ],
+  "gaps": []
+}

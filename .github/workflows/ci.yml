@@ -1,0 +1,202 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # Phase 8: prove the advertised Node minimum (pdfjs-dist 5.4 requires 20.16).
+  check-min-node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.16.0"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck (Node 20.16 minimum)
+        run: npm run typecheck
+
+      - name: Unit tests (Node 20.16 minimum)
+        run: npm test
+
+      - name: Build (Node 20.16 minimum)
+        run: npm run build
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  visual-qa:
+    # Phase 6: real headless Chromium. A separate job so a browser failure is
+    # unambiguous and the fast suite above is never blocked on a browser download.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Visual QA (Chromium)
+        run: npm run test:visual
+
+      - name: Upload Visual QA artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-qa-failure
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  windows-distribution:
+    # The Linux jobs above can only read the Windows launcher as text, which is
+    # how a PowerShell 7 only ternary and a mis-decoded em dash both shipped
+    # undetected. This job runs the real Windows PowerShell 5.1 parser and then
+    # builds and exercises the actual distribution end to end.
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache-dependency-path: tools/windows-launcher/go.mod
+
+      - run: npm ci
+
+      - name: Windows PowerShell 5.1 parser gate + launcher static suite
+        shell: powershell
+        run: |
+          $PSVersionTable.PSVersion
+          npx vitest run tests/windows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Native launcher - vet, test
+        shell: powershell
+        working-directory: tools/windows-launcher
+        run: |
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Detect Inno Setup
+        id: iscc
+        shell: powershell
+        run: |
+          $iscc = (Get-Command ISCC.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) {
+            $candidate = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+            if (Test-Path -LiteralPath $candidate) { $iscc = $candidate }
+          }
+          if ($iscc) {
+            Write-Host "Inno Setup found: $iscc"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "available=true"
+          } else {
+            Write-Host "Inno Setup is not present on this runner; the installer step is skipped."
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "available=false"
+          }
+
+      - name: Build the Windows distribution (portable + installer)
+        if: steps.iscc.outputs.available == 'true'
+        shell: powershell
+        run: .\scripts\windows\build-distribution.ps1 -SkipNpmCi
+
+      - name: Build the Windows distribution (portable only)
+        if: steps.iscc.outputs.available != 'true'
+        shell: powershell
+        run: .\scripts\windows\build-distribution.ps1 -SkipNpmCi -SkipInstaller
+
+      - name: Clean-room portable test from a path with spaces
+        shell: powershell
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $zip = "artifacts\windows\ARCLUME-$version-portable.zip"
+          if (-not (Test-Path -LiteralPath $zip)) { throw "portable ZIP not found: $zip" }
+          $target = Join-Path $env:RUNNER_TEMP "ARCLUME Space Test"
+          if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
+          New-Item -ItemType Directory -Path $target | Out-Null
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::ExtractToDirectory((Resolve-Path $zip).Path, $target)
+          # ARCLUME.exe is a GUI-subsystem binary (no console window): the call
+          # operator does not wait for it and never sets $LASTEXITCODE. Start it
+          # with an explicit wait so the smoke-test exit code is real.
+          $proc = Start-Process -FilePath "$target\ARCLUME\ARCLUME.exe" -ArgumentList "--smoke-test" -Wait -PassThru
+          if ($proc.ExitCode -ne 0) { throw "ARCLUME.exe --smoke-test failed from a path with spaces (exit $($proc.ExitCode))" }
+          Start-Sleep -Seconds 2
+          $orphans = @(Get-CimInstance Win32_Process -Filter "Name = 'node.exe'" |
+            Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($target) })
+          if ($orphans.Count -gt 0) { throw "orphaned bundled node.exe after shutdown" }
+          Write-Host "Clean-room portable test PASS (no orphan)"
+
+      - name: Verify artifacts and checksums
+        shell: powershell
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $sums = "artifacts\windows\SHA256SUMS.txt"
+          if (-not (Test-Path -LiteralPath $sums)) { throw "SHA256SUMS.txt was not generated" }
+          Get-Content $sums | Write-Host
+          $expected = @("ARCLUME-$version-portable.zip")
+          if ("${{ steps.iscc.outputs.available }}" -eq "true") { $expected += "ARCLUME-Setup-$version.exe" }
+          foreach ($name in $expected) {
+            $path = Join-Path "artifacts\windows" $name
+            if (-not (Test-Path -LiteralPath $path)) { throw "missing artifact: $name" }
+            $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            if (-not (Select-String -Path $sums -SimpleMatch "$hash  $name" -Quiet)) {
+              throw "checksum for $name is missing or wrong in SHA256SUMS.txt"
+            }
+            Write-Host "OK $name"
+          }
+
+      - name: Upload the distribution build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-distribution-logs
+          path: |
+            artifacts/windows/build-distribution.log
+          if-no-files-found: ignore
+          retention-days: 7

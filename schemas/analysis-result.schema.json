@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arclume.dev/schema/analysis-result.json",
+  "title": "Arclume AnalysisResult",
+  "description": "Evidence-first candidate output of a Reasoner. Not a ProjectKnowledge; the KnowledgeBuilder consumes it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["analysisVersion", "project", "entities", "relations", "claims", "gaps"],
+  "properties": {
+    "analysisVersion": { "$ref": "https://arclume.dev/schema/common.json#/$defs/semver" },
+    "project": { "$ref": "#/$defs/projectCandidate" },
+    "entities": {
+      "type": "array",
+      "maxItems": 2000,
+      "items": { "$ref": "#/$defs/entityCandidate" }
+    },
+    "relations": {
+      "type": "array",
+      "maxItems": 4000,
+      "items": { "$ref": "#/$defs/relationCandidate" }
+    },
+    "claims": { "type": "array", "maxItems": 2000, "items": { "$ref": "#/$defs/claimCandidate" } },
+    "gaps": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/gapCandidate" } }
+  },
+  "$defs": {
+    "shortText": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+    "longText": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["documentId"],
+      "properties": {
+        "documentId": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+        "lineStart": { "type": "integer", "minimum": 1 },
+        "lineEnd": { "type": "integer", "minimum": 1 },
+        "quote": { "type": "string", "minLength": 1, "maxLength": 2000 }
+      }
+    },
+    "evidenceArray": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "attrs": {
+      "type": "object",
+      "maxProperties": 24,
+      "additionalProperties": { "type": "string", "maxLength": 400 },
+      "propertyNames": { "type": "string", "minLength": 1, "maxLength": 64 }
+    },
+    "projectCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "evidence"],
+      "properties": {
+        "name": { "$ref": "#/$defs/shortText" },
+        "summary": { "$ref": "#/$defs/longText" },
+        "purpose": { "$ref": "#/$defs/longText" },
+        "problem": { "$ref": "#/$defs/longText" },
+        "solution": { "$ref": "#/$defs/longText" },
+        "status": { "$ref": "#/$defs/longText" },
+        "nextSteps": {
+          "type": "array",
+          "maxItems": 24,
+          "items": { "$ref": "#/$defs/shortText" }
+        },
+        "evidence": { "$ref": "#/$defs/evidenceArray" }
+      }
+    },
+    "entityCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name", "evidence"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "capability",
+            "component",
+            "actor",
+            "dependency",
+            "process",
+            "phase",
+            "milestone",
+            "metric",
+            "risk",
+            "decision",
+            "requirement",
+            "technology",
+            "result",
+            "constraint"
+          ]
+        },
+        "name": { "$ref": "#/$defs/longText" },
+        "key": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "attrs": { "$ref": "#/$defs/attrs" },
+        "factType": { "$ref": "https://arclume.dev/schema/common.json#/$defs/factType" },
+        "evidence": { "$ref": "#/$defs/evidenceArray" }
+      }
+    },
+    "relationCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fromKey", "toKey", "type", "evidence"],
+      "properties": {
+        "fromKey": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "toKey": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "type": { "$ref": "https://arclume.dev/schema/common.json#/$defs/relationType" },
+        "label": { "$ref": "#/$defs/shortText" },
+        "evidence": { "$ref": "#/$defs/evidenceArray" }
+      }
+    },
+    "claimCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "factType", "evidence"],
+      "properties": {
+        "statement": { "$ref": "#/$defs/longText" },
+        "factType": { "$ref": "https://arclume.dev/schema/common.json#/$defs/factType" },
+        "confidence": { "$ref": "https://arclume.dev/schema/common.json#/$defs/confidence" },
+        "supportsKeys": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        },
+        "evidence": { "$ref": "#/$defs/evidenceArray" }
+      }
+    },
+    "gapCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question"],
+      "properties": {
+        "question": { "$ref": "#/$defs/longText" },
+        "why": { "$ref": "#/$defs/longText" },
+        "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+        "blocksKeys": {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "knowledgeVersion": "0.1.0",
+  "project": { "id": "x", "name": "X", "sourceRefs": [{ "sourceId": "does-not-exist" }] },
+  "sources": [{ "id": "s1", "kind": "text", "title": "note" }],
+  "capabilities": [],
+  "components": [],
+  "actors": [],
+  "dependencies": [],
+  "processes": [],
+  "phases": [],
+  "milestones": [],
+  "metrics": [],
+  "risks": [],
+  "decisions": [],
+  "requirements": [],
+  "technologies": [],
+  "results": [],
+  "constraints": [],
+  "relations": [],
+  "claims": [],
+  "gaps": []
+}

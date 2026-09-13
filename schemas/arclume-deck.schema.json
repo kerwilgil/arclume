@@ -1,0 +1,573 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arclume.dev/schema/arclume-deck.json",
+  "title": "ArclumeDeck IR",
+  "description": "Versioned Intermediate Representation for a presentation deck derived from a ProjectKnowledge model.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "irVersion",
+    "meta",
+    "project",
+    "audience",
+    "narrative",
+    "theme",
+    "provenance",
+    "slides",
+    "diagrams"
+  ],
+  "properties": {
+    "irVersion": { "$ref": "https://arclume.dev/schema/common.json#/$defs/semver" },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "subtitle": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "generator": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "generatedAt": { "$ref": "https://arclume.dev/schema/common.json#/$defs/isoDateTime" },
+        "sourceDigest": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" },
+        "locale": {
+          "type": "string",
+          "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$",
+          "description": "BCP-47 language tag. Default 'es'."
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "oneLiner": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "tagline": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "domain": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "sourceRefs": { "$ref": "https://arclume.dev/schema/common.json#/$defs/sourceRefArray" }
+      }
+    },
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preset"],
+      "properties": {
+        "preset": {
+          "type": "string",
+          "enum": [
+            "executive",
+            "technical",
+            "commercial",
+            "project-status",
+            "product",
+            "client",
+            "investor",
+            "proposal",
+            "audit",
+            "internal-review",
+            "general"
+          ]
+        },
+        "locale": {
+          "type": "string",
+          "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+        },
+        "priorKnowledge": { "type": "string", "enum": ["low", "medium", "high"] },
+        "formality": { "type": "string", "enum": ["casual", "neutral", "formal"] },
+        "notes": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" }
+      }
+    },
+    "narrative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preset", "throughline", "sections"],
+      "properties": {
+        "preset": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "deckType": {
+          "type": "string",
+          "enum": [
+            "project-overview",
+            "architecture-review",
+            "technical-deep-dive",
+            "executive-brief",
+            "proposal",
+            "status-report",
+            "migration-plan",
+            "product-overview",
+            "incident-postmortem"
+          ]
+        },
+        "arcTitle": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "throughline": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "title", "purpose"],
+            "properties": {
+              "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+              "title": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "purpose": { "type": "string", "minLength": 1, "maxLength": 400 }
+            }
+          }
+        }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["minimal", "executive", "corporate", "technical", "futuristic"]
+        },
+        "aspectRatio": { "type": "string", "enum": ["16:9", "16:10", "4:3"] },
+        "mode": { "type": "string", "enum": ["auto", "light", "dark"] },
+        "tokensRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources"],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/source" }
+        },
+        "knowledgeHash": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" },
+        "narrativeRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" },
+        "slidePlanRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" }
+      }
+    },
+    "slides": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/slide" }
+    },
+    "diagrams": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagram" }
+    }
+  },
+  "$defs": {
+    "slide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "index",
+        "kind",
+        "title",
+        "keyMessage",
+        "narrativePurpose",
+        "layout",
+        "blocks",
+        "checks"
+      ],
+      "properties": {
+        "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+        "index": { "type": "integer", "minimum": 0 },
+        "sectionId": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "cover",
+            "section",
+            "content",
+            "diagram",
+            "metrics",
+            "comparison",
+            "timeline",
+            "roadmap",
+            "quote",
+            "closing"
+          ]
+        },
+        "title": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "subtitle": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "keyMessage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "description": "The single main idea of the slide. Carried through verbatim from SlidePlan.keyMessage (which caps at 240); whitespace is collapsed but wording is never altered."
+        },
+        "narrativePurpose": {
+          "type": "string",
+          "enum": [
+            "context",
+            "problem",
+            "solution",
+            "impact",
+            "capability",
+            "architecture",
+            "process",
+            "evidence",
+            "risk",
+            "roadmap",
+            "status",
+            "next-steps",
+            "summary",
+            "call-to-action"
+          ]
+        },
+        "layout": {
+          "type": "string",
+          "enum": ["single", "split-2", "grid", "full-bleed-visual", "centered", "quote"]
+        },
+        "blocks": {
+          "type": "array",
+          "maxItems": 24,
+          "items": { "$ref": "#/$defs/block" }
+        },
+        "visual": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["chosenForm"],
+          "properties": {
+            "chosenForm": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+            "rationale": { "type": "string", "minLength": 1, "maxLength": 600 },
+            "rejected": {
+              "type": "array",
+              "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "maxItems": 12
+            }
+          }
+        },
+        "diagramRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/evidence" },
+          "maxItems": 32
+        },
+        "speakerNotes": { "type": "string", "maxLength": 8000 },
+        "checks": { "$ref": "#/$defs/slideChecks" }
+      }
+    },
+    "slideChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "visualQa": {
+          "type": "string",
+          "enum": ["pass", "warn", "fail", "skipped", "pending"]
+        },
+        "unsourcedFacts": { "type": "integer", "minimum": 0 },
+        "densityWarnings": { "type": "integer", "minimum": 0 },
+        "notes": {
+          "type": "array",
+          "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+          "maxItems": 24
+        }
+      }
+    },
+    "diagram": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "engine", "diagramType"],
+      "properties": {
+        "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+        "engine": { "type": "string", "enum": ["visual", "native", "unspecified"] },
+        "diagramType": {
+          "type": "string",
+          "enum": [
+            "architecture",
+            "workflow",
+            "sequence",
+            "dataflow",
+            "lifecycle",
+            "timeline",
+            "roadmap",
+            "matrix",
+            "hierarchy",
+            "before-after",
+            "comparison",
+            "unspecified"
+          ]
+        },
+        "title": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "spec": {
+          "description": "Engine-specific payload. Not deeply validated in Phase 1 (deferred to the diagram engines phase)."
+        },
+        "sourceRefs": { "$ref": "https://arclume.dev/schema/common.json#/$defs/sourceRefArray" }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+        "emphasis": { "type": "boolean" },
+        "caption": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "sourceRefs": { "$ref": "https://arclume.dev/schema/common.json#/$defs/sourceRefArray" }
+      },
+      "oneOf": [
+        { "$ref": "#/$defs/blockText" },
+        { "$ref": "#/$defs/blockMetric" },
+        { "$ref": "#/$defs/blockMetricGrid" },
+        { "$ref": "#/$defs/blockComparison" },
+        { "$ref": "#/$defs/blockTimeline" },
+        { "$ref": "#/$defs/blockRoadmap" },
+        { "$ref": "#/$defs/blockRisk" },
+        { "$ref": "#/$defs/blockStatus" },
+        { "$ref": "#/$defs/blockCallout" },
+        { "$ref": "#/$defs/blockQuote" },
+        { "$ref": "#/$defs/blockTable" },
+        { "$ref": "#/$defs/blockImage" },
+        { "$ref": "#/$defs/blockCode" },
+        { "$ref": "#/$defs/blockDiagram" },
+        { "$ref": "#/$defs/blockArchitecture" },
+        { "$ref": "#/$defs/blockWorkflow" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "blockText": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "text" },
+        "text": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "format": { "type": "string", "enum": ["plain", "markdown"] }
+      }
+    },
+    "blockMetric": {
+      "type": "object",
+      "required": ["type", "label", "value"],
+      "properties": {
+        "type": { "const": "metric" },
+        "label": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "value": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "unit": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "delta": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "direction": { "type": "string", "enum": ["up-good", "down-good", "neutral"] },
+        "metricId": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" }
+      }
+    },
+    "blockMetricGrid": {
+      "type": "object",
+      "required": ["type", "metrics"],
+      "properties": {
+        "type": { "const": "metric-grid" },
+        "metrics": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "value"],
+            "properties": {
+              "label": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "value": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "unit": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "delta": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "direction": { "type": "string", "enum": ["up-good", "down-good", "neutral"] },
+              "metricId": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" }
+            }
+          }
+        }
+      }
+    },
+    "blockComparison": {
+      "type": "object",
+      "required": ["type", "left", "right", "rows"],
+      "properties": {
+        "type": { "const": "comparison" },
+        "left": { "$ref": "#/$defs/comparisonColumn" },
+        "right": { "$ref": "#/$defs/comparisonColumn" },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "left", "right"],
+            "properties": {
+              "label": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "left": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "right": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" }
+            }
+          }
+        }
+      }
+    },
+    "comparisonColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "note": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" }
+      }
+    },
+    "blockTimeline": {
+      "type": "object",
+      "required": ["type", "items"],
+      "properties": {
+        "type": { "const": "timeline" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 24,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label"],
+            "properties": {
+              "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+              "label": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "date": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+              "detail": { "type": "string", "minLength": 1, "maxLength": 600 },
+              "state": { "type": "string", "enum": ["done", "active", "planned"] }
+            }
+          }
+        }
+      }
+    },
+    "blockRoadmap": {
+      "type": "object",
+      "required": ["type", "phases"],
+      "properties": {
+        "type": { "const": "roadmap" },
+        "phases": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+              "name": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+              "status": {
+                "type": "string",
+                "enum": ["planned", "active", "done", "blocked", "cancelled"]
+              },
+              "start": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+              "end": { "$ref": "https://arclume.dev/schema/common.json#/$defs/dateHint" },
+              "items": {
+                "type": "array",
+                "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+                "maxItems": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "blockRisk": {
+      "type": "object",
+      "required": ["type", "statement", "factType"],
+      "properties": {
+        "type": { "const": "risk" },
+        "statement": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "likelihood": { "type": "string", "enum": ["low", "medium", "high", "unknown"] },
+        "impact": { "type": "string", "enum": ["low", "medium", "high", "unknown"] },
+        "mitigation": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "factType": { "$ref": "https://arclume.dev/schema/common.json#/$defs/factType" },
+        "riskId": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" }
+      }
+    },
+    "blockStatus": {
+      "type": "object",
+      "required": ["type", "state", "label"],
+      "properties": {
+        "type": { "const": "status" },
+        "state": { "type": "string", "enum": ["green", "amber", "red", "unknown"] },
+        "label": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "detail": { "type": "string", "minLength": 1, "maxLength": 600 }
+      }
+    },
+    "blockCallout": {
+      "type": "object",
+      "required": ["type", "tone", "text"],
+      "properties": {
+        "type": { "const": "callout" },
+        "tone": {
+          "type": "string",
+          "enum": ["info", "success", "warning", "danger", "neutral"]
+        },
+        "text": { "type": "string", "minLength": 1, "maxLength": 1200 }
+      }
+    },
+    "blockQuote": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "quote" },
+        "text": { "type": "string", "minLength": 1, "maxLength": 1200 },
+        "attribution": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" }
+      }
+    },
+    "blockTable": {
+      "type": "object",
+      "required": ["type", "columns", "rows"],
+      "properties": {
+        "type": { "const": "table" },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 40,
+          "items": {
+            "type": "array",
+            "items": { "type": "string", "maxLength": 400 }
+          }
+        }
+      }
+    },
+    "blockImage": {
+      "type": "object",
+      "required": ["type", "src", "alt"],
+      "properties": {
+        "type": { "const": "image" },
+        "src": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "alt": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "fit": { "type": "string", "enum": ["contain", "cover"] }
+      }
+    },
+    "blockCode": {
+      "type": "object",
+      "required": ["type", "code"],
+      "properties": {
+        "type": { "const": "code" },
+        "language": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+        "code": { "type": "string", "minLength": 1, "maxLength": 8000 }
+      }
+    },
+    "blockDiagram": {
+      "type": "object",
+      "required": ["type", "diagramRef"],
+      "properties": {
+        "type": { "const": "diagram" },
+        "diagramRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" }
+      }
+    },
+    "blockArchitecture": {
+      "type": "object",
+      "required": ["type", "diagramRef"],
+      "properties": {
+        "type": { "const": "architecture" },
+        "diagramRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" }
+      }
+    },
+    "blockWorkflow": {
+      "type": "object",
+      "required": ["type", "diagramRef"],
+      "properties": {
+        "type": { "const": "workflow" },
+        "diagramRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" }
+      }
+    }
+  }
+}

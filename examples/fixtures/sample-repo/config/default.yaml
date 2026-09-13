@@ -1,0 +1,16 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  requestTimeoutMs: 3000
+
+ingest:
+  secretHeader: x-taskflow-signature
+  maxPayloadBytes: 65536
+
+rules:
+  activeRuleset: pilot
+  reloadPerRequest: true
+
+store:
+  driver: sqlite
+  path: ./data/taskflow.db

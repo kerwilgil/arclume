@@ -1,0 +1,27 @@
+{
+  "knowledgeVersion": "0.1.0",
+  "project": {
+    "id": "x",
+    "name": "X",
+    "sourceRefs": [],
+    "colour": "blue"
+  },
+  "sources": [],
+  "capabilities": [],
+  "components": [],
+  "actors": [],
+  "dependencies": [],
+  "processes": [],
+  "phases": [],
+  "milestones": [],
+  "metrics": [],
+  "risks": [],
+  "decisions": [],
+  "requirements": [],
+  "technologies": [],
+  "results": [],
+  "constraints": [],
+  "relations": [],
+  "claims": [],
+  "gaps": []
+}

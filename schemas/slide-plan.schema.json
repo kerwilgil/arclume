@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arclume.dev/schema/slide-plan.json",
+  "title": "Arclume SlidePlan",
+  "description": "Semantic slide plan derived from a NarrativePlan: one key message per slide, each traceable to knowledge and sources. No visual form, layout, theme, colours or blocks — those belong to the VisualDirector (Phase 4).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "planVersion",
+    "audience",
+    "narrativeRef",
+    "budget",
+    "targetSlideCount",
+    "slides",
+    "decisions",
+    "notes"
+  ],
+  "properties": {
+    "planVersion": { "$ref": "https://arclume.dev/schema/common.json#/$defs/semver" },
+    "meta": { "$ref": "#/$defs/planMeta" },
+    "audience": { "$ref": "#/$defs/audience" },
+    "deckType": { "$ref": "#/$defs/deckType" },
+    "narrativeRef": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" },
+    "knowledgeHash": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" },
+    "budget": { "$ref": "#/$defs/budget" },
+    "targetSlideCount": { "type": "integer", "minimum": 0, "maximum": 999 },
+    "slides": {
+      "type": "array",
+      "maxItems": 200,
+      "items": { "$ref": "#/$defs/slide" }
+    },
+    "decisions": {
+      "type": "array",
+      "maxItems": 800,
+      "items": { "$ref": "#/$defs/decision" }
+    },
+    "notes": {
+      "type": "array",
+      "maxItems": 400,
+      "items": { "$ref": "#/$defs/note" }
+    }
+  },
+  "$defs": {
+    "id": { "$ref": "https://arclume.dev/schema/common.json#/$defs/id" },
+    "idArray": { "$ref": "https://arclume.dev/schema/common.json#/$defs/idArray" },
+    "shortText": { "$ref": "https://arclume.dev/schema/common.json#/$defs/shortText" },
+    "paragraph": { "type": "string", "minLength": 1, "maxLength": 600 },
+    "audience": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "technical",
+        "general",
+        "product",
+        "client",
+        "investor",
+        "internal-review"
+      ]
+    },
+    "deckType": {
+      "type": "string",
+      "enum": [
+        "project-overview",
+        "architecture-review",
+        "technical-deep-dive",
+        "executive-brief",
+        "proposal",
+        "status-report",
+        "migration-plan",
+        "product-overview",
+        "incident-postmortem"
+      ]
+    },
+    "planMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generator": { "$ref": "#/$defs/shortText" },
+        "contentHash": { "$ref": "https://arclume.dev/schema/common.json#/$defs/contentHash" }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minSlides", "targetSlides", "maxSlides"],
+      "properties": {
+        "minSlides": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "targetSlides": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "maxSlides": { "type": "integer", "minimum": 1, "maximum": 999 }
+      }
+    },
+    "slideKind": {
+      "type": "string",
+      "enum": [
+        "cover",
+        "section",
+        "content",
+        "diagram",
+        "metrics",
+        "comparison",
+        "timeline",
+        "roadmap",
+        "quote",
+        "closing"
+      ]
+    },
+    "narrativePurpose": {
+      "type": "string",
+      "enum": [
+        "context",
+        "problem",
+        "solution",
+        "impact",
+        "capability",
+        "architecture",
+        "process",
+        "evidence",
+        "risk",
+        "roadmap",
+        "status",
+        "next-steps",
+        "summary",
+        "call-to-action"
+      ]
+    },
+    "visualIntent": {
+      "type": "string",
+      "enum": [
+        "none",
+        "summary",
+        "metrics",
+        "relationship",
+        "architecture",
+        "process",
+        "sequence",
+        "timeline",
+        "roadmap",
+        "comparison",
+        "hierarchy",
+        "risk",
+        "status",
+        "quote"
+      ]
+    },
+    "density": { "type": "string", "enum": ["low", "medium", "high"] },
+    "slide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "index",
+        "sectionId",
+        "kind",
+        "title",
+        "keyMessage",
+        "narrativePurpose",
+        "knowledgeRefs",
+        "claimRefs",
+        "sourceRefs",
+        "contentIntent",
+        "visualIntent",
+        "density",
+        "priority"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "index": { "type": "integer", "minimum": 0, "maximum": 998 },
+        "sectionId": { "$ref": "#/$defs/id" },
+        "kind": { "$ref": "#/$defs/slideKind" },
+        "title": { "$ref": "#/$defs/shortText" },
+        "keyMessage": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "narrativePurpose": { "$ref": "#/$defs/narrativePurpose" },
+        "knowledgeRefs": { "$ref": "#/$defs/idArray" },
+        "claimRefs": { "$ref": "#/$defs/idArray" },
+        "sourceRefs": { "$ref": "https://arclume.dev/schema/common.json#/$defs/sourceRefArray" },
+        "contentIntent": { "$ref": "#/$defs/shortText" },
+        "visualIntent": { "$ref": "#/$defs/visualIntent" },
+        "visualCandidates": { "$ref": "#/$defs/idArray" },
+        "density": { "$ref": "#/$defs/density" },
+        "priority": { "type": "integer", "minimum": 1, "maximum": 999 }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "decision", "reason"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 48 },
+        "sectionId": { "$ref": "#/$defs/id" },
+        "slideId": { "$ref": "#/$defs/id" },
+        "decision": { "$ref": "#/$defs/shortText" },
+        "reason": { "$ref": "#/$defs/paragraph" },
+        "knowledgeRefs": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "note": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "severity"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^(planning|narrative|plan)/[a-z][a-z0-9-]*$",
+          "maxLength": 64
+        },
+        "message": { "$ref": "#/$defs/paragraph" },
+        "severity": { "type": "string", "enum": ["info", "warning"] }
+      }
+    }
+  }
+}

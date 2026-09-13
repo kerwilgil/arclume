@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Pre-paint theme bootstrap. A classic, synchronous, same-origin script
+      (CSP script-src 'self'; not inline) that sets data-theme before the
+      stylesheet or body render, so an explicit Dark/Light preference never
+      flashes the other theme first. See web/public/assets/theme-bootstrap.js
+      and web/src/theme/index.ts (React re-applies the same computation and
+      keeps listening for live OS theme changes).
+    -->
+    <script src="/assets/theme-bootstrap.js"></script>
+    <!-- The server substitutes the per-process session token here. -->
+    <meta name="arclume-session" content="__ARCLUME_SESSION__" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ARCLUME</title>
+    <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/brand/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png" />
+    <link rel="shortcut icon" href="/brand/arclume.ico" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "name": "arclume",
+  "version": "1.0.0",
+  "description": "Local-first engine that turns projects and documents into source-backed visual narratives and presentation decks in HTML, PDF and editable PPTX.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Kerwil Gil",
+  "engines": {
+    "node": ">=20.16.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "arclume": "./dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "docs",
+    "vendor/archify",
+    "SKILL.md",
+    "LICENSE",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "web/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kerwilgil/arclume.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kerwilgil/arclume/issues"
+  },
+  "homepage": "https://github.com/kerwilgil/arclume#readme",
+  "keywords": [
+    "presentation",
+    "presentation-generator",
+    "slide-deck",
+    "deck-generator",
+    "pptx",
+    "powerpoint",
+    "pdf",
+    "html-presentations",
+    "document-analysis",
+    "project-analysis",
+    "visual-storytelling",
+    "local-first",
+    "ai-agents",
+    "agent-tools",
+    "typescript"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && vite build web",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p web/tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:visual": "vitest run --config vitest.visual.config.ts",
+    "install:chromium": "playwright install chromium",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "build:web": "vite build web"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "cross-spawn": "^7.0.6",
+    "fflate": "0.8.3",
+    "ignore": "^5.3.2",
+    "parse5": "8.0.1",
+    "pdfjs-dist": "5.4.296",
+    "pixelmatch": "^5.3.0",
+    "playwright": "1.62.1",
+    "pngjs": "^7.0.0",
+    "pptxgenjs": "4.0.1",
+    "saxes": "6.0.0",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^22.10.0",
+    "@types/pixelmatch": "^5.2.6",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "18.3.24",
+    "@types/react-dom": "18.3.7",
+    "@vitejs/plugin-react": "4.3.4",
+    "jsdom": "^25.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "^5.7.0",
+    "vite": "5.4.20",
+    "vitest": "^3.0.0"
+  }
+}
