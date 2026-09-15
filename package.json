@@ -57,7 +57,7 @@
     "typescript"
   ],
   "scripts": {
-    "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json && vite build web",
+    "build": "tsc -p tsconfig.build.json && vite build web",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p web/tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
