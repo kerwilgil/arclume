@@ -412,6 +412,11 @@ export interface GeometryPolicy {
 
 const CRITICAL_OVERFLOW_TOLERANCE = 2;
 
+const DIAGRAM_BBOX_UTILIZATION_THRESHOLD = 0.3; // content bbox should be at least 30% of viewBox
+const EXCESSIVE_WHITESPACE_THRESHOLD = 0.3; // content bbox should be at least 30% of slide
+const CANVAS_CENTERING_TOLERANCE = 0.15; // content center within 15% of viewBox center
+const TITLE_DIAGRAM_CLEARANCE = 40; // minimum pixels between title bottom and diagram top
+
 function sev(strict: boolean): "error" | "warning" {
   return strict ? "error" : "warning";
 }
@@ -581,6 +586,183 @@ export function geometryFindings(
         fraction: Math.round(frac * 1000) / 1000,
       },
     });
+  }
+
+  // --- NEW VISUAL QA GATES (1.0.1 Visual Quality Patch) ---
+
+  // 1. Title/keyMessage collision
+  const titleEl = m.criticals.find((c) => c.kind === "title");
+  const keymessageEl = m.criticals.find((c) => c.kind === "keymessage");
+  if (titleEl && keymessageEl) {
+    const titleBottom = titleEl.bottom;
+    const kmTop = keymessageEl.y;
+    if (kmTop < titleBottom + 2) {
+      out.push({
+        ...base,
+        code: "visual/title-keymessage-collision",
+        severity: "error",
+        message: `keyMessage overlaps title (gap: ${Math.round(kmTop - titleBottom)}px)`,
+        metrics: { titleBottom, keymessageTop: kmTop, gap: Math.round(kmTop - titleBottom) },
+      });
+    }
+  }
+
+  // 2. Title/diagram clearance
+  const diagramEl = m.criticals.find((c) => c.kind === "diagram");
+  if (titleEl && diagramEl && m.stage) {
+    const titleBottom = titleEl.bottom;
+    const diagramTop = diagramEl.y;
+    const clearance = diagramTop - titleBottom;
+    if (clearance < TITLE_DIAGRAM_CLEARANCE) {
+      out.push({
+        ...base,
+        ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
+        code: "visual/title-diagram-clearance",
+        severity: "error",
+        message: `diagram too close to title (clearance: ${Math.round(clearance)}px, minimum: ${TITLE_DIAGRAM_CLEARANCE}px)`,
+        metrics: {
+          titleBottom,
+          diagramTop,
+          clearance: Math.round(clearance),
+          minimum: TITLE_DIAGRAM_CLEARANCE,
+        },
+      });
+    }
+  }
+  if (keymessageEl && diagramEl && m.stage) {
+    const kmBottom = keymessageEl.bottom;
+    const diagramTop = diagramEl.y;
+    const clearance = diagramTop - kmBottom;
+    if (clearance < TITLE_DIAGRAM_CLEARANCE) {
+      out.push({
+        ...base,
+        ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
+        code: "visual/keymessage-diagram-clearance",
+        severity: "error",
+        message: `diagram too close to keyMessage (clearance: ${Math.round(clearance)}px, minimum: ${TITLE_DIAGRAM_CLEARANCE}px)`,
+        metrics: {
+          keymessageBottom: kmBottom,
+          diagramTop,
+          clearance: Math.round(clearance),
+          minimum: TITLE_DIAGRAM_CLEARANCE,
+        },
+      });
+    }
+  }
+
+  // 3. Diagram bounding-box utilization (content vs viewBox)
+  if (diagramEl?.svg?.hasViewBox && diagramEl.svg.viewBoxW > 0 && diagramEl.svg.viewBoxH > 0) {
+    const viewBoxArea = diagramEl.svg.viewBoxW * diagramEl.svg.viewBoxH;
+    const contentArea = diagramEl.svg.bboxW * diagramEl.svg.bboxH;
+    if (viewBoxArea > 0) {
+      const utilization = contentArea / viewBoxArea;
+      if (utilization < DIAGRAM_BBOX_UTILIZATION_THRESHOLD) {
+        out.push({
+          ...base,
+          ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
+          code: "visual/diagram-bbox-underutilized",
+          severity: sev(policy.strict),
+          message: `diagram content uses only ${(utilization * 100).toFixed(1)}% of viewBox (threshold: ${(DIAGRAM_BBOX_UTILIZATION_THRESHOLD * 100).toFixed(1)}%)`,
+          metrics: {
+            utilization: Math.round(utilization * 1000) / 1000,
+            threshold: DIAGRAM_BBOX_UTILIZATION_THRESHOLD,
+            contentArea,
+            viewBoxArea,
+          },
+        });
+      }
+    }
+  }
+
+  // 4. Excessive whitespace (slide content vs stage)
+  if (m.stage && m.stage.rectW > 0 && m.stage.rectH > 0) {
+    const stageArea = m.stage.rectW * m.stage.rectH;
+    let contentArea = 0;
+    for (const c of m.criticals) {
+      if (c.kind !== "diagram" || c.svg?.hasViewBox) {
+        contentArea += c.w * c.h;
+      }
+    }
+    if (stageArea > 0) {
+      const utilization = contentArea / stageArea;
+      if (utilization < EXCESSIVE_WHITESPACE_THRESHOLD && m.criticals.length > 0) {
+        out.push({
+          ...base,
+          code: "visual/excessive-whitespace",
+          severity: sev(policy.strict),
+          message: `slide content uses only ${(utilization * 100).toFixed(1)}% of stage area (threshold: ${(EXCESSIVE_WHITESPACE_THRESHOLD * 100).toFixed(1)}%)`,
+          metrics: {
+            utilization: Math.round(utilization * 1000) / 1000,
+            threshold: EXCESSIVE_WHITESPACE_THRESHOLD,
+            contentArea,
+            stageArea,
+          },
+        });
+      }
+    }
+  }
+
+  // 5. Canvas centering (diagram content centered in viewBox)
+  if (diagramEl?.svg?.hasViewBox && diagramEl.svg.viewBoxW > 0 && diagramEl.svg.viewBoxH > 0) {
+    const viewBoxCenterX = diagramEl.svg.viewBoxW / 2;
+    const viewBoxCenterY = diagramEl.svg.viewBoxH / 2;
+    const contentCenterX =
+      diagramEl.svg.bboxW > 0
+        ? diagramEl.x + diagramEl.svg.bboxW / 2
+        : diagramEl.x + diagramEl.w / 2;
+    const contentCenterY =
+      diagramEl.svg.bboxH > 0
+        ? diagramEl.y + diagramEl.svg.bboxH / 2
+        : diagramEl.y + diagramEl.h / 2;
+    const offsetX = Math.abs(contentCenterX - viewBoxCenterX) / (diagramEl.svg.viewBoxW / 2);
+    const offsetY = Math.abs(contentCenterY - viewBoxCenterY) / (diagramEl.svg.viewBoxH / 2);
+    const maxOffset = Math.max(offsetX, offsetY);
+    if (maxOffset > CANVAS_CENTERING_TOLERANCE) {
+      out.push({
+        ...base,
+        ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
+        code: "visual/diagram-not-centered",
+        severity: sev(policy.strict),
+        message: `diagram content not centered in viewBox (offset: ${(maxOffset * 100).toFixed(1)}%, tolerance: ${(CANVAS_CENTERING_TOLERANCE * 100).toFixed(1)}%)`,
+        metrics: {
+          offsetX: Math.round(offsetX * 1000) / 1000,
+          offsetY: Math.round(offsetY * 1000) / 1000,
+          maxOffset: Math.round(maxOffset * 1000) / 1000,
+          tolerance: CANVAS_CENTERING_TOLERANCE,
+        },
+      });
+    }
+  }
+
+  // 6. Node collision detection
+  const diagramBlocks = m.criticals.filter((c) => c.kind === "block" || c.kind === "diagram");
+  for (let i = 0; i < diagramBlocks.length; i++) {
+    const a = diagramBlocks[i];
+    if (!a) continue;
+    for (let j = i + 1; j < diagramBlocks.length; j++) {
+      const b = diagramBlocks[j];
+      if (!b) continue;
+      const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.x, b.x));
+      const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y));
+      if (overlapX > 2 && overlapY > 2) {
+        out.push({
+          ...base,
+          ...(a.id ? { blockId: a.id } : {}),
+          ...(b.id ? { blockId: b.id } : {}),
+          ...(a.diagramId ? { diagramId: a.diagramId } : {}),
+          ...(b.diagramId ? { diagramId: b.diagramId } : {}),
+          code: "visual/node-collision",
+          severity: "error",
+          message: `elements overlap: ${describe(a)} and ${describe(b)} (overlap: ${Math.round(overlapX)}×${Math.round(overlapY)}px)`,
+          metrics: {
+            elementA: describe(a),
+            elementB: describe(b),
+            overlapX: Math.round(overlapX),
+            overlapY: Math.round(overlapY),
+          },
+        });
+      }
+    }
   }
 
   return out;
