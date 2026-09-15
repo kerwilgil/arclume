@@ -191,6 +191,40 @@ jobs:
             Write-Host "OK $name"
           }
 
+      - name: Prepare Windows distribution artifact
+        shell: powershell
+        run: |
+          $source = (Resolve-Path "artifacts\windows").Path
+          $target = Join-Path $env:RUNNER_TEMP "arclume-windows-distribution"
+          if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
+          New-Item -ItemType Directory -Path $target | Out-Null
+
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $portable = Join-Path $source "ARCLUME-$version-portable.zip"
+          $sums = Join-Path $source "SHA256SUMS.txt"
+          $exe = Join-Path $source "stage\ARCLUME\ARCLUME.exe"
+          foreach ($path in @($portable, $sums, $exe)) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "required distribution file not found: $path" }
+          }
+          Copy-Item -LiteralPath $portable -Destination $target
+          Copy-Item -LiteralPath $sums -Destination $target
+          Copy-Item -LiteralPath $exe -Destination (Join-Path $target "ARCLUME.exe")
+
+          if ("${{ steps.iscc.outputs.available }}" -eq "true") {
+            $installer = Join-Path $source "ARCLUME-Setup-$version.exe"
+            if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw "required installer not found: $installer" }
+            Copy-Item -LiteralPath $installer -Destination $target
+          }
+
+      - name: Upload Windows distribution artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arclume-windows-distribution
+          path: ${{ runner.temp }}/arclume-windows-distribution
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Upload the distribution build log on failure
         if: failure()
         uses: actions/upload-artifact@v4
