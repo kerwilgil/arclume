@@ -48,6 +48,9 @@ AllowNoIcons=yes
 
 LicenseFile={#RepoRoot}\LICENSE
 SetupIconFile={#RepoRoot}\docs\assets\brand\arclume.ico
+; Technical derivatives of the official Lume Glyph for Inno Setup's fixed-size panels.
+WizardImageFile={#RepoRoot}\installer\windows\arclume-wizard.bmp
+WizardSmallImageFile={#RepoRoot}\installer\windows\arclume-wizard-small.bmp
 UninstallDisplayName={#ArclumeName} {#ArclumeVersion}
 UninstallDisplayIcon={app}\{#ArclumeExe}
 
