@@ -132,7 +132,7 @@ body {
   flex-direction: column;
   gap: 12px;
   /**
-   * Sticky, full-viewport rail (1.0.1 fix). The page scrolls with long
+   * Sticky, full-viewport rail. The page scrolls with long
    * content (Help, long workspaces) while the sidebar keeps covering the
    * whole viewport height instead of ending early and leaving a blank gap.
    * `height` (not max-height) + `overflow-y: auto`: the sidebar scrolls

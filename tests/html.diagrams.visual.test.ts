@@ -102,7 +102,7 @@ describe("HTML renderer — Visual Engine artifacts", () => {
     if (arch === undefined) throw new Error("missing diagram");
     arch.engine = "visual";
     const { html, report } = renderDeckHtml(deck);
-    expect(html).toContain("Phase 7).</div>");
+    expect(html).toContain("Diagram not rendered (engine: visual).</div>");
     expect(report.warnings.some((w) => w.code === "render/unsupported-diagram-engine")).toBe(true);
   });
 

@@ -28,7 +28,7 @@ export const VISUAL_ENGINE_COMMIT = "c826e6c3a7abad19c0f3cd1ca57207d54b1ad8de" a
  * and Linux checkouts.
  */
 export const VISUAL_ENGINE_SUBTREE_SHA256 =
-  "ec2508d982d090d36575410e51932229741bcea5dedbe831938566fa84b646fc" as const;
+  "1953cb41d71d3ba2af0f74ba1a2fc0443138d1ef6e95c4ca9d0706c4b2157257" as const;
 
 /** Number of files in the vendored subtree. */
 export const VISUAL_ENGINE_FILE_COUNT = 46 as const;

@@ -1,8 +1,8 @@
-/**
- * ARCLUME Visual Engine adapter — the *pure* semantic → engine mapping.
+﻿/**
+ * Visual Engine adapter (Phase 7) — the *pure* semantic → engine mapping.
  *
  * Input:  a validated `DiagramIR` whose `spec.format` is `"arclume.native.v1"`.
- * Output: a `VisualEngineRequest` (visual engine's own JSON IR) plus provenance and
+ * Output: a `VisualEngineRequest` (Visual Engine's own JSON IR) plus provenance and
  *         ordering metadata, or a classified failure.
  *
  * This module is pure: no filesystem, no subprocess, no clock, no RNG, no
@@ -35,7 +35,12 @@ import {
   VISUAL_ENGINE_WORKFLOW_CAPACITY,
   type VisualEngineAdaptationFailure,
   type VisualEngineAdaptationResult,
+  type VisualEngineArchitectureRequest,
+  type VisualEngineDataflowRequest,
+  type VisualEngineLifecycleRequest,
   type VisualEngineProvenanceMaps,
+  type VisualEngineSequenceRequest,
+  type VisualEngineWorkflowRequest,
 } from "./types.js";
 
 const asArray = (v: unknown): Array<Record<string, unknown>> =>
@@ -45,7 +50,7 @@ const str = (v: unknown): string | undefined => (typeof v === "string" ? v : und
 const byId = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
- * Enum boundaries the vendored visual engine schemas enforce. The adapter rejects an
+ * Enum boundaries the vendored Visual Engine schemas enforce. The adapter rejects an
  * out-of-enum value as an integrity failure (`visual-engine/adapter-invalid-input`)
  * so a malformed spec never slips through to an opaque `visual-engine/render-failed`
  * that would then silently fall back to native.
@@ -87,19 +92,19 @@ function fail(diagramId: string, code: string, message: string): VisualEngineAda
   return { kind: "error", diagramId, code, message };
 }
 
-/** A title the visual engine accepts (meta.title requires minLength 1). */
+/** A title Visual Engine accepts (meta.title requires minLength 1). */
 function visualEngineTitle(diagram: DiagramIR): string {
   const t = typeof diagram.title === "string" ? diagram.title.trim() : "";
   return t.length > 0 ? t : diagram.id;
 }
 
-/** A label the visual engine accepts (minLength 1). Never empty after this. */
+/** A label Visual Engine accepts (minLength 1). Never empty after this. */
 function labelOf(raw: string | undefined, id: string): string {
   const trimmed = (raw ?? "").replace(/\s+/g, " ").trim();
   return trimmed.length > 0 ? trimmed : id;
 }
 
-/** Ids must satisfy both Arclume's and visual engine's id grammar. */
+/** Ids must satisfy both Arclume's and Visual Engine's id grammar. */
 function safeId(v: unknown): v is string {
   return typeof v === "string" && VISUAL_ENGINE_ID_RE.test(v);
 }
@@ -188,7 +193,7 @@ function normalizeEdges(
 
 const MAX_VISUAL_ENGINE_COLS = 12;
 
-export interface VisualEnginePlacement {
+export interface ArchPlacement {
   /** node id → grid cell. */
   cell: Map<string, { row: number; col: number }>;
   cols: number;
@@ -207,7 +212,7 @@ export interface VisualEnginePlacement {
 export function placeArchitecture(
   nodeIds: readonly string[],
   edges: ReadonlyArray<Pick<NativeEdge, "from" | "to">>,
-): VisualEnginePlacement {
+): ArchPlacement {
   const ids = [...nodeIds].sort(byId);
   const known = new Set(ids);
   const dag = edges.filter((e) => known.has(e.from) && known.has(e.to) && e.from !== e.to);
@@ -332,6 +337,7 @@ function adaptArchitecture(
         label: n.label,
         row: cell.row,
         col: cell.col,
+        size: [workflowNodeWidth(n.label), 64],
       };
     }),
     connections: edges.map((e) => {
@@ -349,7 +355,7 @@ function adaptArchitecture(
       if (e.label !== undefined) {
         c.label = e.label;
         // A horizontal (same-row) edge's label at the geometric midpoint
-        // overlaps the row's components in visual engine's diagnostics; drop it
+        // overlaps the row's components in Visual Engine's diagnostics; drop it
         // deterministically into the inter-row channel instead. Vertical /
         // diagonal edges keep the engine default.
         const fromCell = placement.cell.get(e.from);
@@ -408,7 +414,7 @@ function adaptArchitecture(
 
 /**
  * Deterministic workflow node width from the label length (pixels conservative
- * for visual engine's `classic` preset at font-size 11). Purely presentational —
+ * for Visual Engine's `classic` preset at font-size 11). Purely presentational —
  * nothing is inferred from the label's meaning.
  */
 export function workflowNodeWidth(label: string): number {
@@ -494,7 +500,7 @@ function adaptWorkflow(
     return fail(
       diagram.id,
       "visual-engine/layout-capacity",
-      `diagram "${diagram.id}": ${ordered.length} steps exceed the visual engine workflow capacity of ${VISUAL_ENGINE_WORKFLOW_CAPACITY} — no truncation, fallback to the native engine`,
+      `diagram "${diagram.id}": ${ordered.length} steps exceed the Visual Engine workflow capacity of ${VISUAL_ENGINE_WORKFLOW_CAPACITY} — no truncation, fallback to the native engine`,
     );
   }
 
@@ -533,7 +539,7 @@ function adaptWorkflow(
       col: i,
       type: VISUAL_ENGINE_COMPONENT_TYPE_SENTINEL,
       label: s.label,
-      // Deterministic width from label length only (never semantics): visual engine
+      // Deterministic width from label length only (never semantics): Visual Engine
       // rejects labels wider than their node.
       width: workflowNodeWidth(s.label),
     })),
@@ -1563,7 +1569,7 @@ function adaptSequence(
 /* ------------------------------------------------------------------ */
 
 /**
- * Map a validated `DiagramIR` to a visual engine request. Pure and deterministic.
+ * Map a validated `DiagramIR` to a Visual Engine request. Pure and deterministic.
  * Never throws: every failure is a classified `VisualEngineAdaptationFailure`.
  */
 export function adaptDiagramToVisualEngine(diagram: DiagramIR): VisualEngineAdaptationResult {
@@ -1600,7 +1606,7 @@ export function adaptDiagramToVisualEngine(diagram: DiagramIR): VisualEngineAdap
       return fail(
         diagram.id,
         "visual-engine/unsupported-diagram",
-        `diagram "${diagram.id}" kind "${String(spec["kind"])}" is not supported by the visual engine`,
+        `diagram "${diagram.id}" kind "${String(spec["kind"])}" is not supported by the Visual Engine`,
       );
   }
 }

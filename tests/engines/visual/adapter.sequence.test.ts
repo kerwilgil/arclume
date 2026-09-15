@@ -21,13 +21,13 @@ import {
 import { applyDiagramEnginePreference } from "../../../src/pipeline/diagram-engine-preference.js";
 import { resolveDiagramEngines } from "../../../src/pipeline/resolve-diagrams.js";
 import type { ArclumeDeck, DiagramIR } from "../../../src/types/deck.js";
-import { expectationFor, renderFixtureFor, sequenceArchifyDiagram } from "./helpers.js";
+import { expectationFor, renderFixtureFor, sequenceVisualEngineDiagram } from "./helpers.js";
 
 const deck = (diagrams: DiagramIR[]): ArclumeDeck => ({ diagrams }) as unknown as ArclumeDeck;
 
 describe("Visual Engine adapter — sequence (unit, not pipeline-wired in Slice 1)", () => {
   it("schema: emits a schema_version-1 sequence request with participants/messages", () => {
-    const adapted = adaptDiagramToVisualEngine(sequenceArchifyDiagram());
+    const adapted = adaptDiagramToVisualEngine(sequenceVisualEngineDiagram());
     expect(adapted.kind).toBe("ok");
     if (adapted.kind !== "ok") return;
     const req = adapted.request;
@@ -41,7 +41,7 @@ describe("Visual Engine adapter — sequence (unit, not pipeline-wired in Slice 
   it("validation: rejects <2 participants, unknown message endpoint, bad y, bad variant", () => {
     const bad = (spec: Record<string, unknown>): string => {
       const r = adaptDiagramToVisualEngine(
-        sequenceArchifyDiagram({ spec: { format: "arclume.native.v1", ...spec } }),
+        sequenceVisualEngineDiagram({ spec: { format: "arclume.native.v1", ...spec } }),
       );
       return r.kind === "error" ? r.code : "did-not-fail";
     };
@@ -85,7 +85,7 @@ describe("Visual Engine adapter — sequence (unit, not pipeline-wired in Slice 
   });
 
   it("render: the vendored sequence renderer produces an <svg> carrying every participant + message id", async () => {
-    const diagram = sequenceArchifyDiagram();
+    const diagram = sequenceVisualEngineDiagram();
     const html = await renderFixtureFor(diagram);
     expect(html).toContain("<svg");
     for (const id of ["sq-ui", "sq-api", "sq-idp"]) {
@@ -102,7 +102,7 @@ describe("Visual Engine adapter — sequence (unit, not pipeline-wired in Slice 
     // The vendored sequence renderer places message metadata on a <g>, not a
     // <path>; the sanitizer now binds relations off that <g> too (deduped
     // across the message group and its context <g>).
-    const diagram = sequenceArchifyDiagram();
+    const diagram = sequenceVisualEngineDiagram();
     const adaptation = adaptDiagramToVisualEngine(diagram);
     if (adaptation.kind !== "ok") throw new Error("fixture must adapt");
     const html = await renderFixtureFor(diagram);

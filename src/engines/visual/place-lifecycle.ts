@@ -1,5 +1,5 @@
 /**
- * Deterministic geometry planner for Archify lifecycle diagrams.
+ * Deterministic geometry planner for Visual Engine lifecycle diagrams.
  *
  * Input:  states grouped by `lane` (the reserved `main` rail, optional `event`
  *         lanes for interruptions/recovery, an optional `terminal` band for
@@ -10,7 +10,7 @@
  * Pure and deterministic. Ties broken by ascending id. Scope: a primary rail
  * on `main` (≤ 5 columns) with lower-lane interruptions and terminal exits
  * (≤ 3 columns each) — the renderer's band budget. Anything outside that is an
- * explicit `unplaceable` reason, never invalid geometry handed to Archify.
+ * explicit `unplaceable` reason, never invalid geometry handed to the renderer.
  */
 
 const MAIN_COLS = 5;

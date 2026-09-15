@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * 1.0.1 source picker UI — the "Browse…" button on the Source step.
+ * Source picker UI — the "Browse…" button on the Source step.
  *
  * Contract under test:
  *  - Browse shows only for a Folder / file source, never for URL.

@@ -161,7 +161,7 @@ export type DiagramModel =
       edges: FlowEdge[];
       /** Only a `sequence` whose steps map to ≥2 distinct actor/component
        * entities carries this participant-aware projection; it routes to the
-       * Archify sequence renderer, otherwise the flow stays native. */
+       * Visual Engine sequence renderer, otherwise the flow stays native. */
       participants?: SeqParticipant[];
       messages?: SeqMessage[];
       sourceRefs: SourceRef[];

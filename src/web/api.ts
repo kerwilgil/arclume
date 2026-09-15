@@ -231,7 +231,7 @@ async function handleApiInner(
     return handleSettingsApi(method, parts, body);
   }
 
-  // Native source picker (1.0.1). Zero input by design: the request body is
+  // Native source picker. Zero input by design: the request body is
   // deliberately never read, so no client-supplied string can reach a
   // process invocation. Cancellation resolves as `{ cancelled: true }`,
   // never an error.

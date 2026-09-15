@@ -1,5 +1,5 @@
 /**
- * 1.0.1 native source picker — API contract and security boundary.
+ * Native source picker — API contract and security boundary.
  *
  * Browser-free (node fetch against the real server on an ephemeral port).
  * The OS dialog itself is never spawned here: a TEST-ONLY seam answers on

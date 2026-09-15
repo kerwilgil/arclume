@@ -8,7 +8,7 @@
  *    never `writeFile`, never `path:` images, never hyperlinks/OLE/macros;
  *  - speaker notes are exported verbatim (never invented);
  *  - every diagram becomes a real visual: native SVG (renderer built) or the
- *    sanitized Archify SVG. If SVG embedding fails, the SAME sanitized SVG is
+ *    sanitized Visual Engine SVG. If SVG embedding fails, the SAME sanitized SVG is
  *    rendered to PNG offline (`export/pptx-svg-rasterized` loud warning) —
  *    never a text placeholder.
  */
@@ -125,7 +125,7 @@ async function probeWriterSvgAccepts(svg: string): Promise<boolean> {
 
 /**
  * Produce the media for one diagram, respecting its provenance:
- *  - Archify `svg` artifact → the sanitized SVG (authoritative).
+ *  - Visual Engine `svg` artifact → the sanitized SVG (authoritative).
  *  - native-fallback or no artifact → the native renderer's SVG (same bytes as
  *    the HTML renderer would produce, never re-derived).
  * Then package it for the writer: embeddable SVG first; if the writer cannot

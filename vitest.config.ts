@@ -19,7 +19,13 @@ export default defineConfig({
     exclude: ["tests/visual/**", "node_modules/**", "dist/**"],
     setupFiles: ["tests/web/helpers/setup-react-act.ts"],
     environment: "node",
-    // Archify engine tests spawn the vendored CLI subprocesses; keep headroom
+    // Node 26 on Windows can time out Vitest's worker-thread task-update RPC
+    // during the package smoke suite. The process pool has stable IPC here;
+    // bound concurrency keeps the suite deterministic on CI runners.
+    pool: "forks",
+    minWorkers: 1,
+    maxWorkers: 4,
+    // Visual engine tests spawn the vendored CLI subprocesses; keep headroom
     // for slow CI and busy developer machines.
     testTimeout: 30_000,
     reporters: ["default"],

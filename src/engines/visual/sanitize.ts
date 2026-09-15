@@ -224,11 +224,11 @@ interface XmlNode {
 }
 
 function escapeText(s: string): string {
-  return s.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function escapeAttr(s: string): string {
-  return escapeText(s).replace(/"/g, '"').replace(/'/g, "'");
+  return escapeText(s).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 /* ------------------------------------------------------------------ */

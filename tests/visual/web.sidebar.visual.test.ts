@@ -1,5 +1,5 @@
 /**
- * 1.0.1 sidebar clipping fix — real Chromium evidence.
+ * Sidebar clipping fix — real Chromium evidence.
  *
  * Drives the actual UI, scrolls Help to the very bottom and proves the
  * sidebar still covers the whole viewport (the 1.0.0 bug left an empty gap
@@ -119,7 +119,7 @@ async function openHelp(locale = "en-US"): Promise<Page> {
   return page;
 }
 
-describe("web — sidebar clipping regression (1.0.1)", () => {
+describe("web — sidebar clipping regression", () => {
   it("Help at top/middle/bottom: the sidebar covers the whole viewport throughout", async () => {
     const page = await openHelp();
     const mid = await sidebarMetrics(page);

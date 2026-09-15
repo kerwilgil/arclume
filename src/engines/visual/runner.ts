@@ -135,6 +135,7 @@ export async function runVisualEngine(
       code: number | null;
       timedOut: boolean;
       spawnError?: string;
+      stderr?: string;
     }>((resolve) => {
       let settled = false;
       let timedOut = false;

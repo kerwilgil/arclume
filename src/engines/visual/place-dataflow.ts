@@ -1,5 +1,5 @@
 /**
- * Deterministic geometry planner for Archify data-flow diagrams.
+ * Deterministic geometry planner for Visual Engine data-flow diagrams.
  *
  * Input:  a semantic data flow — nodes grouped by `stage`, directed `flows`.
  * Output: a `row` per node and a `route` per flow that the vendored
@@ -13,7 +13,7 @@
  * small branches) whose widest stage has at most 5 nodes — the renderer's row
  * budget. Anything outside that (a backward flow, a cycle, or an overfull
  * stage) is returned as an explicit `unplaceable` reason, never as invalid
- * geometry handed to Archify to "fix".
+ * geometry handed to the renderer to "fix".
  */
 
 /** Vendored dataflow layout budget (see renderers/dataflow/README.md). */

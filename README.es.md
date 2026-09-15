@@ -28,7 +28,7 @@ Desde el modelo de conocimiento en adelante todo es determinista: la misma entra
 - Ingesta proyectos, documentos y URLs en documentos fuente normalizados, con hash de procedencia.
 - Construye un modelo **ProjectKnowledge** cuyas afirmaciones se clasifican como `FACT` / `INFERENCE` / `UNKNOWN` / `RECOMMENDATION` y están respaldadas por evidencia.
 - Planifica la narrativa y las diapositivas de forma determinista para la audiencia elegida — un mensaje clave por diapositiva.
-- Dirige los visuales: 16 tipos de bloque, diagramas nativos (arquitectura, proceso, secuencia, línea de tiempo, hoja de ruta) y diagramas Archify (arquitectura, flujo de trabajo).
+- Dirige los visuales: 16 tipos de bloque, diagramas nativos (arquitectura, proceso, secuencia, línea de tiempo, hoja de ruta) y diagramas del ARCLUME Visual Engine (arquitectura, flujo de trabajo).
 - Renderiza un HTML de presentación único, autocontenido — offline, controlado por teclado, accesible.
 - Exporta a PDF y PPTX editable como bundles atómicos con recibos.
 - Demuestra el resultado renderizado con Visual QA en Chromium: capturas, geometría, contraste, comprobaciones de red-cero y consola-cero.
@@ -211,7 +211,7 @@ ARCLUME es un core headless con clientes ligeros (CLI, Web UI, skill de agente):
 
 ### Motores de diagrama
 
-ARCLUME incluye un motor de diagrama Archify vendored para diagramas de arquitectura/flujo de trabajo soportados, junto a sus propios modelos deterministas nativos. Archify está vendored bajo `vendor/archify/` (v2.16.0, MIT — © tt-a1i / Cocoon AI). Detalles de integración en [docs/DIAGRAM_ENGINES.md](docs/DIAGRAM_ENGINES.md); atribución y licencias en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+ARCLUME incluye el ARCLUME Visual Engine vendorizado para diagramas de arquitectura/flujo de trabajo soportados, junto a sus propios modelos deterministas nativos. Los detalles de atribución y licencias están en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Requisitos
 
@@ -287,7 +287,7 @@ requisitos y solución de problemas.
 | Ingesta (PDF / DOCX / URL) | Estable |
 | Export (HTML / PDF / PPTX) | Estable |
 | Visual QA | Estable |
-| Motor Archify | Estable |
+| ARCLUME Visual Engine | Estable |
 
 **ARCLUME 1.0: release candidate — auditoría final pendiente.** No se ha realizado npm publish, tag git ni GitHub Release.
 
@@ -302,7 +302,7 @@ ARCLUME se llamó anteriormente ProjectDeck (referencia histórica únicamente).
 - Límite Reasoner y contrato agente — [docs/REASONER.md](docs/REASONER.md), [SKILL.md](SKILL.md)
 - Planificación narrativa y de slides — [docs/NARRATIVE.md](docs/NARRATIVE.md), [docs/SLIDE_PLANNING.md](docs/SLIDE_PLANNING.md)
 - Dirección visual, temas, modelos visuales — [docs/VISUAL_DIRECTOR.md](docs/VISUAL_DIRECTOR.md), [docs/THEMES.md](docs/THEMES.md), [docs/VISUAL_MODELS.md](docs/VISUAL_MODELS.md)
-- Motores de diagrama (Archify) — [docs/DIAGRAM_ENGINES.md](docs/DIAGRAM_ENGINES.md)
+- Motores de diagrama — [docs/DIAGRAM_ENGINES.md](docs/DIAGRAM_ENGINES.md)
 - Renderer HTML y viewer — [docs/HTML_RENDERER.md](docs/HTML_RENDERER.md), [docs/VIEWER.md](docs/VIEWER.md)
 - Visual QA y entrega atómica — [docs/VISUAL_QA.md](docs/VISUAL_QA.md), [docs/ATOMIC_DELIVERY.md](docs/ATOMIC_DELIVERY.md)
 - CLI, presets, watch, packaging — [docs/CLI.md](docs/CLI.md)

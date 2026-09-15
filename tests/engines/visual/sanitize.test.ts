@@ -205,7 +205,7 @@ describe("Visual Engine sanitizer — malicious labels stay inert text", () => {
     );
     expect(svg).not.toContain("<script>");
     expect(svg).not.toContain("<script");
-    expect(svg).toContain("<script>alert(1)</script>");
+    expect(svg).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
     expect(svg).toContain('data-entity-id="cmp-xss"');
   });
 });

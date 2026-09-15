@@ -107,7 +107,7 @@ interface ArchLayout {
  *    `nodes.length - 1` and never grows without limit.
  *  - Any graph with a cycle falls back to a deterministic stable grid
  *    (id-sorted, `ceil(sqrt(n))` columns). Edges may cross; that is acceptable
- *    for Phase 5. Phase 7 / Archify owns sophisticated cyclic layout.
+ *    for Phase 5. The Visual Engine owns sophisticated cyclic layout.
  *
  * In both cases the returned `width` / `height` are derived from the **real**
  * node-box bounds plus a margin, so no node can fall outside the viewBox.

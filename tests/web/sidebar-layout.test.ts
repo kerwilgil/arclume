@@ -1,5 +1,5 @@
 /**
- * 1.0.1 sidebar clipping fix — structural CSS guard.
+ * Sidebar clipping fix — structural CSS guard.
  *
  * The 1.0.0 layout gave `.sidebar` `max-height: 100vh` without pinning it,
  * so a long main column (Help scrolled to the bottom) left an empty gap
@@ -30,7 +30,7 @@ function ruleBody(selector: string, scope: string): string {
   return ((match as RegExpMatchArray)[1] ?? "").replace(/\/\*[\s\S]*?\*\//g, "");
 }
 
-describe("sidebar layout — 1.0.1 clipping fix", () => {
+describe("sidebar layout — clipping fix", () => {
   it("the desktop sidebar is sticky, pinned to the top, full viewport height", () => {
     const body = ruleBody(".sidebar", css);
     expect(body).toMatch(/position:\s*sticky/);

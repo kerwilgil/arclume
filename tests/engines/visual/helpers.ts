@@ -194,7 +194,7 @@ export function lifecycleRetryDiagram(over: Partial<DiagramIR> = {}): DiagramIR 
  * route `sequence` to the visual engine through the pipeline — this only exercises
  * `adaptSequence` + the vendored sequence renderer directly.
  */
-export function sequenceArchifyDiagram(over: Partial<DiagramIR> = {}): DiagramIR {
+export function sequenceVisualEngineDiagram(over: Partial<DiagramIR> = {}): DiagramIR {
   return {
     id: "d-sq",
     engine: "visual",

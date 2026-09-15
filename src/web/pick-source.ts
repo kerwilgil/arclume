@@ -1,5 +1,5 @@
 /**
- * Native source picker bridge (1.0.1 UX patch).
+ * Native source picker bridge.
  *
  * One native OS dialog resolves an absolute filesystem path for a
  * "Folder / file" source. The dialog is opened by the operating system on

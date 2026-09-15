@@ -208,6 +208,8 @@ export interface VisualEngineComponent {
   label: string;
   row: number;
   col: number;
+  /** Presentational dimensions; sized deterministically from the label. */
+  size?: readonly [number, number];
 }
 
 export interface VisualEngineConnection {
