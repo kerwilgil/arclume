@@ -498,9 +498,15 @@ export const blockHandlerMatrix = BUILDING;
 
 export interface SemanticLayoutProps {
   aspect: AspectRatio;
+  /** Precomputed diagram media for sizing diagram blocks */
+  diagramMedia?: ReadonlyMap<string, { dataUri: string; heightIn: number; source: "svg" | "png" }>;
 }
 
-export function layoutRegions(slide: Slide, aspect: AspectRatio): Map<Block["id"], Region> {
+export function layoutRegions(
+  slide: Slide,
+  aspect: AspectRatio,
+  diagramMedia?: ReadonlyMap<string, { dataUri: string; heightIn: number; source: "svg" | "png" }>,
+): Map<Block["id"], Region> {
   void aspect;
   const areas = new Map<Block["id"], Region>();
   const s = slideDims(aspect);
@@ -549,7 +555,12 @@ export function layoutRegions(slide: Slide, aspect: AspectRatio): Map<Block["id"
     }
     case "full-bleed-visual": {
       blocks.forEach((b, i) => {
-        areas.set(b.id, { x: band.x, y: band.y + i * 0.8, w: band.w, h: 0.7 });
+        let h = 0.7;
+        if (isDiagramBlock(b) && b.diagramRef && diagramMedia) {
+          const media = diagramMedia.get(b.diagramRef);
+          if (media) h = media.heightIn + 0.1; // small padding
+        }
+        areas.set(b.id, { x: band.x, y: band.y + i * (h + 0.1), w: band.w, h });
       });
       break;
     }
@@ -588,7 +599,7 @@ export function buildSemanticLayout(ctx: PptxBlockCtx, slide: Slide): void {
       fontFace: themeFont(ctx.theme),
     });
   }
-  const regions = layoutRegions(slide, ctx.aspect);
+  const regions = layoutRegions(slide, ctx.aspect, ctx.diagramMedia);
   for (const block of slide.blocks) {
     const r = regions.get(block.id);
     if (r === undefined) {

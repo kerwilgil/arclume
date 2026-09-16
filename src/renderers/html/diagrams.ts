@@ -10,7 +10,14 @@
  */
 
 import type { ResolvedDiagramArtifact } from "../../engines/types.js";
+import { byId } from "../../engines/visual/adapter.js";
 import type { DiagramIR } from "../../types/deck.js";
+import {
+  type ArchitectureEdge,
+  type ArchitectureNode,
+  computeArchitectureLayout,
+  layoutToNativeRenderer,
+} from "../../visual/architecture-layout.js";
 import { escapeHtml, isSafeId, oneLine } from "./escape.js";
 import type { HtmlRenderWarning } from "./types.js";
 
@@ -90,96 +97,6 @@ function frame(width: number, height: number, kind: string, body: string): strin
 /* architecture                                                        */
 /* ------------------------------------------------------------------ */
 
-const ARCH = { NW: 200, NH: 64, GX: 96, GY: 30, MX: 44, MY: 44 } as const;
-
-interface ArchLayout {
-  pos: Map<string, { x: number; y: number }>;
-  width: number;
-  height: number;
-  cyclic: boolean;
-}
-
-/**
- * Deterministic, genuinely cycle-safe placement for an architecture graph.
- *
- *  - A DAG (proven by a deterministic Kahn topological sort) gets a layered
- *    layout: `layer` is computed in topological order, so it is bounded by
- *    `nodes.length - 1` and never grows without limit.
- *  - Any graph with a cycle falls back to a deterministic stable grid
- *    (id-sorted, `ceil(sqrt(n))` columns). Edges may cross; that is acceptable
- *    for Phase 5. The Visual Engine owns sophisticated cyclic layout.
- *
- * In both cases the returned `width` / `height` are derived from the **real**
- * node-box bounds plus a margin, so no node can fall outside the viewBox.
- */
-function layoutArchitecture(
-  nodes: ReadonlyArray<{ id: string }>,
-  edges: ReadonlyArray<{ from: string; to: string }>,
-): ArchLayout {
-  const { NW, NH, GX, GY, MX, MY } = ARCH;
-  const ids = nodes.map((n) => n.id).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-  const known = new Set(ids);
-  // Real, non-self edges between two known nodes drive the topology.
-  const dag = edges.filter((e) => known.has(e.from) && known.has(e.to) && e.from !== e.to);
-
-  const indeg = new Map<string, number>(ids.map((id) => [id, 0]));
-  const out = new Map<string, string[]>(ids.map((id) => [id, []]));
-  for (const e of dag) {
-    indeg.set(e.to, (indeg.get(e.to) ?? 0) + 1);
-    (out.get(e.from) as string[]).push(e.to);
-  }
-  for (const list of out.values()) list.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-
-  // Kahn, deterministic: always take the smallest id among in-degree-0 nodes.
-  const layer = new Map<string, number>(ids.map((id) => [id, 0]));
-  const ready = ids.filter((id) => (indeg.get(id) ?? 0) === 0);
-  const seen = new Set<string>(ready);
-  let processed = 0;
-  while (ready.length > 0) {
-    ready.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-    const u = ready.shift() as string;
-    processed += 1;
-    for (const v of out.get(u) ?? []) {
-      const want = (layer.get(u) ?? 0) + 1;
-      if (want > (layer.get(v) ?? 0)) layer.set(v, want);
-      indeg.set(v, (indeg.get(v) ?? 0) - 1);
-      if ((indeg.get(v) ?? 0) === 0 && !seen.has(v)) {
-        seen.add(v);
-        ready.push(v);
-      }
-    }
-  }
-  const cyclic = processed !== ids.length;
-
-  const pos = new Map<string, { x: number; y: number }>();
-  if (!cyclic) {
-    const rowOf = new Map<number, number>();
-    for (const id of ids) {
-      const l = layer.get(id) ?? 0;
-      const row = rowOf.get(l) ?? 0;
-      rowOf.set(l, row + 1);
-      pos.set(id, { x: MX + l * (NW + GX), y: MY + row * (NH + GY) });
-    }
-  } else {
-    const cols = Math.max(1, Math.ceil(Math.sqrt(ids.length)));
-    ids.forEach((id, i) => {
-      pos.set(id, {
-        x: MX + (i % cols) * (NW + GX),
-        y: MY + Math.floor(i / cols) * (NH + GY),
-      });
-    });
-  }
-
-  // viewBox strictly from the real bounds — never from a layer count.
-  let maxX = MX + NW;
-  let maxY = MY + NH;
-  for (const p of pos.values()) {
-    maxX = Math.max(maxX, p.x + NW);
-    maxY = Math.max(maxY, p.y + NH);
-  }
-  return { pos, width: maxX + MX, height: maxY + MY, cyclic };
-}
-
 function renderArchitecture(spec: NativeSpec): string {
   const nodes = asArray(spec.nodes)
     .map((n) => ({
@@ -199,13 +116,26 @@ function renderArchitecture(spec: NativeSpec): string {
     }))
     .filter((e) => e.from !== "" && e.to !== "");
 
-  const { NW, NH } = ARCH;
-  const { pos, width, height } = layoutArchitecture(nodes, edges);
+  const archNodes: ArchitectureNode[] = nodes.map((n) => ({
+    id: n.id,
+    label: n.label,
+    entityId: n.entityId ?? "",
+  }));
+  const archEdges: ArchitectureEdge[] = edges.map((e) => ({
+    id: e.id,
+    from: e.from,
+    to: e.to,
+    label: e.label,
+    relationId: e.relationId ?? "",
+  }));
+  const layout = computeArchitectureLayout(archNodes, archEdges);
+  const { nodePositions, viewBox } = layoutToNativeRenderer(layout);
+  const { NW, NH } = { NW: 200, NH: 64 };
 
   const edgeEls = edges
     .map((e) => {
-      const a = pos.get(e.from);
-      const b = pos.get(e.to);
+      const a = nodePositions.get(e.from);
+      const b = nodePositions.get(e.to);
       if (!a || !b) return "";
       const x1 = a.x + NW;
       const y1 = a.y + NH / 2;
@@ -226,14 +156,14 @@ function renderArchitecture(spec: NativeSpec): string {
 
   const nodeEls = nodes
     .map((n) => {
-      const p = pos.get(n.id);
+      const p = nodePositions.get(n.id);
       if (!p) return "";
       const lines = wrapLabel(n.label, 24, 2);
       return `<g${dataId("node-id", n.id)}${dataId("entity-id", n.entityId)}><rect class="node-box" x="${p.x}" y="${p.y}" width="${NW}" height="${NH}" rx="6"/>${svgText(p.x + NW / 2, p.y + NH / 2 - (lines.length - 1) * 7 + 4, lines)}</g>`;
     })
     .join("");
 
-  return frame(width, height, "architecture", edgeEls + nodeEls);
+  return frame(viewBox.width, viewBox.height, "architecture", edgeEls + nodeEls);
 }
 
 /* ------------------------------------------------------------------ */

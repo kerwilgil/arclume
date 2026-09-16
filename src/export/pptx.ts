@@ -136,6 +136,34 @@ async function probeWriterSvgAccepts(svg: string): Promise<boolean> {
  * Runs entirely BEFORE `buildSemanticLayout`: by the time layout starts the
  * media map holds bytes the writer has already accepted.
  */
+/**
+ * Extract viewBox dimensions from an SVG string.
+ * Returns { width, height } in viewBox units, or null if not parseable.
+ */
+function extractSvgViewBox(svg: string): { width: number; height: number } | null {
+  const vbMatch = svg.match(/viewBox\s*=\s*["']([^"']+)["']/i);
+  if (!vbMatch || !vbMatch[1]) return null;
+  const parts = vbMatch[1].trim().split(/\s+/).map(Number);
+  if (parts.length !== 4 || parts.some(Number.isNaN)) return null;
+  const width = parts[2];
+  const height = parts[3];
+  if (width === undefined || height === undefined) return null;
+  return { width, height };
+}
+
+/**
+ * Compute diagram height in inches from SVG viewBox, preserving aspect ratio
+ * within the available content width.
+ */
+function computeDiagramHeightIn(svg: string, availableWidthIn: number): number {
+  const vb = extractSvgViewBox(svg);
+  if (!vb || vb.width <= 0 || vb.height <= 0) return 3.6; // fallback
+  const aspect = vb.height / vb.width;
+  const heightIn = availableWidthIn * aspect;
+  // Clamp to reasonable bounds
+  return Math.max(1.5, Math.min(5.5, heightIn));
+}
+
 async function buildDiagramMedia(
   diag: DiagramIR,
   artifacts: ReadonlyMap<string, ResolvedDiagramArtifact> | undefined,
@@ -160,8 +188,10 @@ async function buildDiagramMedia(
     opts?.forceSvgRasterization === true || opts?.rejectSvgForDiagramIds?.includes(diag.id)
       ? false
       : await probeWriterSvgAccepts(svg);
+  const availableWidthIn = 8.5; // Standard slide content width for 16:9 (10in - 2*0.75in margins)
+  const heightIn = computeDiagramHeightIn(svg, availableWidthIn);
   if (writerAcceptsSvg) {
-    return { dataUri: svgDataUri(svg), heightIn: 3.6, source: "svg" };
+    return { dataUri: svgDataUri(svg), heightIn, source: "svg" };
   }
   // The writer rejected SVG: rasterize the SAME validated SVG offline.
   try {
@@ -169,7 +199,7 @@ async function buildDiagramMedia(
     warnings.push("export/pptx-svg-rasterized");
     return {
       dataUri: `data:image/png;base64,${png.toString("base64")}`,
-      heightIn: 3.6,
+      heightIn,
       source: "png",
     };
   } catch (cause) {

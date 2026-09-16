@@ -19,6 +19,12 @@
 
 import { contentHash } from "../../determinism/hash.js";
 import type { DiagramIR } from "../../types/deck.js";
+import {
+  type ArchitectureEdge,
+  type ArchitectureNode,
+  computeArchitectureLayout,
+  layoutToVisualEngineRequest,
+} from "../../visual/architecture-layout.js";
 import type { ResolvedDiagramProvenance } from "../types.js";
 import { placeDataflow } from "./place-dataflow.js";
 import { placeLifecycle } from "./place-lifecycle.js";
@@ -47,7 +53,7 @@ const asArray = (v: unknown): Array<Record<string, unknown>> =>
   Array.isArray(v) ? (v as Array<Record<string, unknown>>) : [];
 const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 
-const byId = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+export const byId = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  * Enum boundaries the vendored Visual Engine schemas enforce. The adapter rejects an
@@ -313,60 +319,38 @@ function adaptArchitecture(
   if (!edgeResult.ok) return edgeResult.failure;
   const { edges } = edgeResult;
 
-  const placement = placeArchitecture(
-    nodes.map((n) => n.id),
-    edges,
+  const archNodes: ArchitectureNode[] = nodes.map((n) => ({
+    id: n.id,
+    label: n.label,
+    entityId: n.entityId,
+  }));
+  const archEdges: ArchitectureEdge[] = edges.map((e) => ({
+    id: e.id,
+    from: e.from,
+    to: e.to,
+    label: e.label ?? "",
+    relationId: e.relationId,
+  }));
+  const layout = computeArchitectureLayout(archNodes, archEdges);
+  const veRequest = layoutToVisualEngineRequest(
+    layout,
+    archNodes,
+    archEdges,
+    visualEngineTitle(diagram),
+    VISUAL_ENGINE_COMPONENT_TYPE_SENTINEL,
+    workflowNodeWidth,
   );
 
-  const sorted = [...nodes].sort((a, b) => byId(a.id, b.id));
   const request: import("./types.js").VisualEngineArchitectureRequest = {
     schema_version: 1,
     diagram_type: "architecture",
-    meta: {
-      title: visualEngineTitle(diagram),
-      animation: "none",
-      visual_preset: "classic",
-      legend: { mode: "hidden" },
-    },
-    layout: { mode: "grid", cols: placement.cols },
-    components: sorted.map((n) => {
-      const cell = placement.cell.get(n.id) ?? { row: 0, col: 0 };
-      return {
-        id: n.id,
-        type: VISUAL_ENGINE_COMPONENT_TYPE_SENTINEL,
-        label: n.label,
-        row: cell.row,
-        col: cell.col,
-        size: [workflowNodeWidth(n.label), 64],
-      };
-    }),
-    connections: edges.map((e) => {
-      const c: {
-        id: string;
-        from: string;
-        to: string;
-        label?: string;
-        labelDy?: number;
-      } = {
-        id: e.id,
-        from: e.from,
-        to: e.to,
-      };
-      if (e.label !== undefined) {
-        c.label = e.label;
-        // A horizontal (same-row) edge's label at the geometric midpoint
-        // overlaps the row's components in Visual Engine's diagnostics; drop it
-        // deterministically into the inter-row channel instead. Vertical /
-        // diagonal edges keep the engine default.
-        const fromCell = placement.cell.get(e.from);
-        const toCell = placement.cell.get(e.to);
-        if (fromCell !== undefined && toCell !== undefined && fromCell.row === toCell.row) {
-          c.labelDy = 54;
-        }
-      }
-      return c;
-    }),
+    meta: veRequest.meta,
+    layout: veRequest.layout,
+    components: veRequest.components,
+    connections: veRequest.connections,
   };
+
+  const sorted = [...nodes].sort((a, b) => byId(a.id, b.id));
 
   const spec: NativeArchitectureSpec = {
     format: NATIVE_SPEC_FORMAT,

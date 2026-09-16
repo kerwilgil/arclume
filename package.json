@@ -1,6 +1,6 @@
 {
   "name": "arclume",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Local-first engine that turns projects and documents into source-backed visual narratives and presentation decks in HTML, PDF and editable PPTX.",
   "type": "module",
   "license": "MIT",

@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+
+# build output (root dist only - web/dist is explicitly included)
+dist/
+*.tsbuildinfo
+
+# test / coverage
+coverage/
+.vitest/
+
+# environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa
+id_rsa.*
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# temporary / generated artifacts
+tmp/
+*.tmp
+*.log
+out/
+
+# Windows distribution build output
+artifacts/
+dist-release/
+tools/windows-launcher/resource_windows.syso
+tools/windows-launcher/versioninfo.json
+
+# Allow web/dist explicitly (overrides dist/ above)
+!web/dist/
