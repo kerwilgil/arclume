@@ -1,6 +1,0 @@
-{
-  "maxRulesetSizeBytes": 131072,
-  "maxRulesPerRuleset": 500,
-  "maxConcurrentEvaluations": 8,
-  "decisionTimeoutMs": 1500
-}

@@ -1,7 +1,0 @@
-Engineering notes for TaskFlow.
-
-TODO: decide on the retention window for audit records before M3.
-FIXME: the ingest component logs the raw payload at debug level.
-
-The rules engine currently reloads the ruleset on every request; this is fine
-for the pilot volume but should be revisited.
