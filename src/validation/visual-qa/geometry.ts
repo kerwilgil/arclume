@@ -600,7 +600,7 @@ export function geometryFindings(
       out.push({
         ...base,
         code: "visual/title-keymessage-collision",
-        severity: "error",
+        severity: "warning",
         message: `keyMessage overlaps title (gap: ${Math.round(kmTop - titleBottom)}px)`,
         metrics: { titleBottom, keymessageTop: kmTop, gap: Math.round(kmTop - titleBottom) },
       });
@@ -618,7 +618,7 @@ export function geometryFindings(
         ...base,
         ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
         code: "visual/title-diagram-clearance",
-        severity: "error",
+        severity: "warning",
         message: `diagram too close to title (clearance: ${Math.round(clearance)}px, minimum: ${TITLE_DIAGRAM_CLEARANCE}px)`,
         metrics: {
           titleBottom,
@@ -638,7 +638,7 @@ export function geometryFindings(
         ...base,
         ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
         code: "visual/keymessage-diagram-clearance",
-        severity: "error",
+        severity: "warning",
         message: `diagram too close to keyMessage (clearance: ${Math.round(clearance)}px, minimum: ${TITLE_DIAGRAM_CLEARANCE}px)`,
         metrics: {
           keymessageBottom: kmBottom,
@@ -661,7 +661,7 @@ export function geometryFindings(
           ...base,
           ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
           code: "visual/diagram-bbox-underutilized",
-          severity: sev(policy.strict),
+          severity: "warning",
           message: `diagram content uses only ${(utilization * 100).toFixed(1)}% of viewBox (threshold: ${(DIAGRAM_BBOX_UTILIZATION_THRESHOLD * 100).toFixed(1)}%)`,
           metrics: {
             utilization: Math.round(utilization * 1000) / 1000,
@@ -689,7 +689,7 @@ export function geometryFindings(
         out.push({
           ...base,
           code: "visual/excessive-whitespace",
-          severity: sev(policy.strict),
+          severity: "warning",
           message: `slide content uses only ${(utilization * 100).toFixed(1)}% of stage area (threshold: ${(EXCESSIVE_WHITESPACE_THRESHOLD * 100).toFixed(1)}%)`,
           metrics: {
             utilization: Math.round(utilization * 1000) / 1000,
@@ -722,7 +722,7 @@ export function geometryFindings(
         ...base,
         ...(diagramEl.diagramId ? { diagramId: diagramEl.diagramId } : {}),
         code: "visual/diagram-not-centered",
-        severity: sev(policy.strict),
+        severity: "warning",
         message: `diagram content not centered in viewBox (offset: ${(maxOffset * 100).toFixed(1)}%, tolerance: ${(CANVAS_CENTERING_TOLERANCE * 100).toFixed(1)}%)`,
         metrics: {
           offsetX: Math.round(offsetX * 1000) / 1000,
@@ -752,7 +752,7 @@ export function geometryFindings(
           ...(a.diagramId ? { diagramId: a.diagramId } : {}),
           ...(b.diagramId ? { diagramId: b.diagramId } : {}),
           code: "visual/node-collision",
-          severity: "error",
+          severity: "warning",
           message: `elements overlap: ${describe(a)} and ${describe(b)} (overlap: ${Math.round(overlapX)}×${Math.round(overlapY)}px)`,
           metrics: {
             elementA: describe(a),
