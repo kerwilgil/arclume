@@ -1,11 +1,33 @@
-# ARCLUME 1.0
+# ARCLUME 1.0.1
 
-ARCLUME 1.0 turns complex projects into clear, evidence-backed visual
-narratives.
+ARCLUME 1.0.1 is the current stable release. It is a **Visual Quality Patch**
+on top of 1.0.0 — it hardens the visual output of generated decks and keeps the
+existing feature set.
 
 > Local-first. Deterministic. Every claim traces back to a real source.
 
-![ARCLUME deck preview](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/05-final-deck-preview.png)
+![ARCLUME architecture diagram](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/04-architecture.png)
+
+## What changed in 1.0.1
+
+- **Shared architecture layout** — a single source of truth now places
+  architecture nodes for both the Visual Engine adapter and the native HTML
+  renderer.
+- **Centering and canvas utilization** — diagram content is centered in the
+  canvas with consistent padding instead of hugging the edges.
+- **PPTX diagram sizing** — diagram height is computed from the SVG viewBox
+  aspect ratio instead of a hardcoded value, so exported slides keep their
+  proportions.
+- **Layout clearance gates** — minimum clearance between title, key message,
+  and diagram is enforced.
+- **Unified edge labels** — same-row edge labels render identically across the
+  Visual Engine and the native renderer.
+- **Twelve new Visual QA gates** — text overlap, title/key-message collision,
+  diagram bounding-box utilization, excessive whitespace, canvas centering,
+  node collision, title/key-message-to-diagram clearance, and more.
+
+No new user-facing commands or configuration were introduced. The CLI, the Web
+UI, and the agent workflow behave exactly as in 1.0.0.
 
 ## What it does
 
@@ -22,47 +44,44 @@ narratives.
 - **Automatic visual selection across seven diagram families** — Architecture,
   Workflow, Sequence, Data Flow, Lifecycle, Timeline, and Roadmap.
 
+  ![Workspace](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/01-workspace.png)
   ![Architecture](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/04-architecture.png)
-![Audience and deck types](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/03-audience-deck-type.png)
 
 - **Six audience presets** — Executive, Technical, Product, Client, Investor,
-  Internal Review — and **nine deck types** — Project Overview, Architecture
+  and Internal Review — and **nine deck types** — Project Overview, Architecture
   Review, Technical Deep Dive, Executive Brief, Proposal, Status Report,
-  Migration Plan, Product Overview, Incident / Postmortem.
+  Migration Plan, Product Overview, and Incident / Postmortem.
 
   ![Audience and deck types](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/03-audience-deck-type.png)
 
 - **Rebuild multiple decks from the same ProjectKnowledge without rerunning AI
   analysis** — analyze once, then produce any number of narratives.
-- **Multiple AI providers** — local (Ollama, Claude Code, Codex) and remote
-  (OpenAI, OpenAI-compatible, Anthropic, NVIDIA).
-- **Fast and Verified analysis modes** — one pass, or a second reviewer pass
-  that checks for unsupported claims.
 - **Three export formats** — self-contained HTML, PDF, and editable PowerPoint
   (PPTX), each sealed with a receipt.
 
+  ![Final deck preview](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/05-final-deck-preview.png)
   ![Export](https://raw.githubusercontent.com/kerwilgil/arclume/main/docs/media/release-1.0.1/06-export.png)
 
 - **English and Spanish** UI, **Light / Dark / System** appearance.
 - **Windows Installer and Portable** builds — per-user install, no admin
-  rights, bundled Node runtime.
+  rights, bundled Node runtime and Chromium.
 
 ## How it works
 
 ```
-Source → Analysis → ProjectKnowledge → Narrative → Visual Intelligence → Deck → HTML / PDF / PPTX
+Source → Analysis → ProjectKnowledge → Narrative → Visual Direction → Deck → HTML / PDF / PPTX
 ```
 
 ## Installation
 
 ### Windows Installer
 
-`ARCLUME-Setup-1.0.0.exe` — per-user install to
+`ARCLUME-Setup-1.0.1.exe` — per-user install to
 `%LOCALAPPDATA%\Programs\ARCLUME`. No administrator rights required.
 
 ### Portable
 
-`ARCLUME-1.0.0-portable.zip` — extract anywhere (paths with spaces are fine)
+`ARCLUME-1.0.1-portable.zip` — extract anywhere (paths with spaces are fine)
 and run `ARCLUME.exe`. Bundles its own Node runtime and Chromium; no system
 Node, npm, or external installation required.
 
@@ -70,8 +89,8 @@ Node, npm, or external installation required.
 
 | File | Description |
 | --- | --- |
-| `ARCLUME-Setup-1.0.0.exe` | Windows installer |
-| `ARCLUME-1.0.0-portable.zip` | Self-contained portable |
+| `ARCLUME-Setup-1.0.1.exe` | Windows installer |
+| `ARCLUME-1.0.1-portable.zip` | Self-contained portable |
 | `SHA256SUMS.txt` | SHA-256 checksums for both |
 
 ## SHA256 verification
@@ -83,19 +102,9 @@ sha256sum -c SHA256SUMS.txt
 On Windows PowerShell:
 
 ```powershell
-Get-FileHash ARCLUME-Setup-1.0.0.exe -Algorithm SHA256
-Get-FileHash ARCLUME-1.0.0-portable.zip -Algorithm SHA256
+Get-FileHash ARCLUME-Setup-1.0.1.exe -Algorithm SHA256
+Get-FileHash ARCLUME-1.0.1-portable.zip -Algorithm SHA256
 ```
-
-## Known Issues
-
-- Local development tests under Node 26 expose a `window.localStorage`
-  incompatibility in `tests/web/**` in jsdom; supported CI matrices
-  (Node 20.16 / 22) run green.
-- The bounded Data Flow solver does not yet handle arbitrarily complex
-  topologies beyond its current capacity.
-- Lifecycle transition labels can render tightly in edge cases.
-- NVIDIA inference availability depends on account/API entitlement.
 
 ## Documentation
 
@@ -105,3 +114,4 @@ Get-FileHash ARCLUME-1.0.0-portable.zip -Algorithm SHA256
 - [Themes](https://github.com/kerwilgil/arclume/blob/main/docs/THEMES.md)
 - [Viewer](https://github.com/kerwilgil/arclume/blob/main/docs/VIEWER.md)
 - [Changelog](https://github.com/kerwilgil/arclume/blob/main/CHANGELOG.md)
+- [Security](https://github.com/kerwilgil/arclume/blob/main/SECURITY.md)

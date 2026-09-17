@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-09-16
+
+### Fixed
+
+- **Visual Quality Patch** — a single shared architecture layout module now
+  places architecture nodes for both the Visual Engine adapter and the native
+  HTML renderer.
+- Diagram content is centered in the canvas with consistent padding instead of
+  hugging the edges.
+- PPTX diagram height is computed from the SVG viewBox aspect ratio instead of
+  a hardcoded value, so exported slides keep their proportions.
+- Minimum clearance between title, key message, and diagram is enforced.
+- Same-row edge labels render identically across the Visual Engine and the
+  native renderer.
+- Visual QA gates adjusted to warning severity for 1.0.1 compatibility; twelve
+  new gates added (text overlap, title/key-message collision, diagram
+  bounding-box utilization, excessive whitespace, canvas centering, node
+  collision, title/key-message-to-diagram clearance, and more).
+
+### Changed
+
+- `package.json` version bumped to `1.0.1`.
+
+### Distribution
+
+- `ARCLUME-Setup-1.0.1.exe` (per-user Inno Setup installer).
+- `ARCLUME-1.0.1-portable.zip` (self-contained portable with bundled runtime).
+- `SHA256SUMS.txt` for both artifacts.
+
 ## [1.0.0] - 2026-09-13
 
 ### Highlights

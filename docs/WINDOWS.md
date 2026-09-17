@@ -1,24 +1,18 @@
 # ARCLUME on Windows
 
-ARCLUME has three Windows paths. The first two are the product; the third is
-for people working on ARCLUME itself.
+ARCLUME has two distribution paths. Both carry their own Node.js runtime and
+their own Chromium, so **nothing else has to be installed**.
 
 | Path | Who it is for | Needs Node.js installed? |
 |---|---|---|
-| `ARCLUME-Setup-<version>.exe` | everyone | no |
-| `ARCLUME-<version>-portable.zip` | portable / no-install users | no |
-| source checkout (`install-arclume.cmd` + `ARCLUME.cmd`) | developers | yes |
-
-> **Status:** the Windows distribution tooling is ready for the 1.0 release.
-> The installer and portable artifacts are produced by
-> `scripts/windows/build-distribution.ps1`. They are not published yet, so
-> there is nothing to download from this repository today.
+| `ARCLUME-Setup-1.0.1.exe` | everyone | no |
+| `ARCLUME-1.0.1-portable.zip` | portable / no-install users | no |
 
 ---
 
 ## 1. Installer
 
-Run `ARCLUME-Setup-<version>.exe` and follow the wizard.
+Run `ARCLUME-Setup-1.0.1.exe` and follow the wizard.
 
 - Installs **per user** into `%LOCALAPPDATA%\Programs\ARCLUME`
 - **No administrator rights** and no UAC prompt
@@ -46,7 +40,7 @@ documents are wherever you saved them and are never touched.
 
 ## 2. Portable
 
-Extract `ARCLUME-<version>-portable.zip` anywhere — including a path with
+Extract `ARCLUME-1.0.1-portable.zip` anywhere — including a path with
 spaces or a removable drive — and double-click `ARCLUME.exe`.
 
 Layout:
@@ -127,99 +121,6 @@ problem with the files. Verify your download against `SHA256SUMS.txt`.
 
 ---
 
-## 3. Source checkout (developers)
-
-Requirements:
-
-- Windows 10 or 11
-- Node.js **>= 20.16.0** (https://nodejs.org/)
-- npm (bundled with Node.js)
-- Windows PowerShell 5.1 (shipped with Windows) — PowerShell 7 is *not*
-  required
-
-First-time setup: **double-click `install-arclume.cmd`**. It verifies Node and
-npm, runs `npm ci` and `npm run build`, installs Chromium via Playwright,
-checks the build artifacts, smoke-tests the CLI, and then runs a **real**
-Web-runtime smoke test (start → discover URL → HTTP 200 → stop). If the Web
-runtime cannot start, the installation fails rather than reporting success.
-
-Daily use: **double-click `ARCLUME.cmd`**.
-
-```text
-==========================================
- ARCLUME
- Local Visual Narrative Workspace
-==========================================
-
-ARCLUME is running:
-http://127.0.0.1:3210
-
-Press Ctrl+C or close this window to stop ARCLUME.
-```
-
-Both `.cmd` files are thin wrappers around
-`scripts\windows\start-arclume.ps1` and `scripts\windows\install-arclume.ps1`.
-The launcher script owns its child process and its own stdout/stderr capture
-files, applies the same fail-closed HTTP 200 gate, and cleans up only what it
-created.
-
-```powershell
-# equivalents
-node .\dist\cli\index.js web
-node .\dist\cli\index.js --help
-node .\dist\cli\index.js analyze .\my-project --reasoner stub --out knowledge.json
-node .\dist\cli\index.js build knowledge.json --preset executive --format html,pdf,pptx
-
-# non-interactive checks
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\windows\start-arclume.ps1 -SmokeTest
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\windows\install-arclume.ps1 -NonInteractive
-```
-
-Logs for this path live in `.tmp\windows\` inside the checkout.
-
-### Desktop shortcut for the checkout
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\windows\create-shortcut.ps1
-```
-
-Creates `ARCLUME.lnk` on your desktop pointing at `ARCLUME.cmd` with the
-official icon from `docs/assets/brand/arclume.ico`.
-
----
-
-## Building the distribution
-
-From a source checkout, with Go and Inno Setup 6 installed:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\windows\build-distribution.ps1
-```
-
-The pipeline runs `npm ci` → `npm run build` → `npm pack`, installs the real
-tarball with production dependencies only, downloads the **pinned** Node
-runtime and verifies its official SHA256 before use, installs Chromium into
-`browsers\`, builds `ARCLUME.exe` from `tools/windows-launcher`, assembles and
-**validates** the portable layout, zips it, compiles the Inno Setup installer
-and writes `SHA256SUMS.txt`. Output lands in `artifacts\windows\` (ignored by
-Git). The version always comes from `package.json`; nothing is hardcoded and
-nothing is published.
-
-Useful switches: `-SkipNpmCi`, `-SkipInstaller`, `-SkipValidation`.
-
-To validate an assembled layout on its own:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\windows\verify-distribution.ps1 -PortableRoot artifacts\windows\stage\ARCLUME
-```
-
-That runs a clean-room suite with a **sanitised PATH** (no Node, no npm on
-it): layout and brand assets, `--version`, `--smoke-test`, orphan check,
-loopback-only listener check, CLI smoke on the bundled runtime, and HTML, PDF
-and PPTX export smoke.
-
----
-
 ## How it works (runtime)
 
 **ARCLUME Web is not a Windows Service.** It is a local user process:
@@ -237,8 +138,7 @@ and PPTX export smoke.
 
 ### The window flashes and disappears / ARCLUME will not start
 
-Read `%LOCALAPPDATA%\ARCLUME\logs\arclume-launcher.log` (packaged
-distribution) or `.tmp\windows\arclume-launcher.log` (source checkout). Fatal
+Read `%LOCALAPPDATA%\ARCLUME\logs\arclume-launcher.log`. Fatal
 errors also appear in a dialog box, not only in the console.
 
 ### SmartScreen blocks the installer
@@ -256,18 +156,11 @@ opens the address the server actually reported.
 Check Windows Settings → Apps → Default apps. The address is printed in the
 ARCLUME window; you can always open it by hand.
 
-### "Node.js not found" / version too old (source checkout only)
+### "Node.js not found" / version too old
 
-Install Node.js 20.16.0+ from https://nodejs.org/ and re-run
-`install-arclume.cmd`. The packaged distribution never shows this message: it
+Install Node.js 20.16.0+ from https://nodejs.org/ if you need to run ARCLUME
+from a source checkout. The packaged distribution never shows this message: it
 carries its own runtime.
-
-### Playwright Chromium download fails (source checkout only)
-
-Chromium is downloaded once. Corporate proxies may block it; configure
-`npm config set proxy` / `npm config set https-proxy`, or run
-`npx playwright install chromium` by hand. The packaged distribution has
-Chromium inside it and needs no download.
 
 ### "Access denied" / permission errors
 
