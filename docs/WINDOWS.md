@@ -5,14 +5,14 @@ their own Chromium, so **nothing else has to be installed**.
 
 | Path | Who it is for | Needs Node.js installed? |
 |---|---|---|
-| `ARCLUME-Setup-1.0.1.exe` | everyone | no |
-| `ARCLUME-1.0.1-portable.zip` | portable / no-install users | no |
+| `ARCLUME-Setup-1.0.2.exe` | everyone | no |
+| `ARCLUME-1.0.2-portable.zip` | portable / no-install users | no |
 
 ---
 
 ## 1. Installer
 
-Run `ARCLUME-Setup-1.0.1.exe` and follow the wizard.
+Run `ARCLUME-Setup-1.0.2.exe` and follow the wizard.
 
 - Installs **per user** into `%LOCALAPPDATA%\Programs\ARCLUME`
 - **No administrator rights** and no UAC prompt
@@ -40,7 +40,7 @@ documents are wherever you saved them and are never touched.
 
 ## 2. Portable
 
-Extract `ARCLUME-1.0.1-portable.zip` anywhere — including a path with
+Extract `ARCLUME-1.0.2-portable.zip` anywhere — including a path with
 spaces or a removable drive — and double-click `ARCLUME.exe`.
 
 Layout:

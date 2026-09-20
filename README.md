@@ -4,7 +4,7 @@
 
 ![ARCLUME banner](brand/banners/readme-header-dark.svg)
 
-**ARCLUME 1.0.1 is the current stable release.**
+**ARCLUME 1.0.2 is the current stable release.**
 
 ARCLUME is a local-first engine that turns projects, documents, and HTTPS URLs into source-backed visual narratives and professional presentation decks.
 
@@ -67,8 +67,8 @@ Everything from **Project Knowledge** onward is a pure, deterministic function o
 
 | | | |
 | --- | --- | --- |
-| ![Workspace](docs/media/release-1.0.1/01-workspace.png) | ![Evidence Inspector](docs/media/release-1.0.1/02-evidence-inspector.png) | ![Audience & deck types](docs/media/release-1.0.1/03-audience-deck-type.png) |
-| ![Architecture](docs/media/release-1.0.1/04-architecture.png) | ![Final deck preview](docs/media/release-1.0.1/05-final-deck-preview.png) | ![Export](docs/media/release-1.0.1/06-export.png) |
+| ![Workspace](docs/media/release-1.0.2/01-workspace.png) | ![Evidence Inspector](docs/media/release-1.0.2/02-evidence-inspector.png) | ![Audience & deck types](docs/media/release-1.0.2/03-audience-deck-type.png) |
+| ![Architecture](docs/media/release-1.0.2/04-architecture.png) | ![Final deck preview](docs/media/release-1.0.2/05-final-deck-preview.png) | ![Export](docs/media/release-1.0.2/06-export.png) |
 
 The workflow, left to right: create a workspace, inspect the evidence-backed
 knowledge, choose an audience and a deck type, preview the deck, and export.
@@ -105,31 +105,31 @@ browser installation is required. The Windows Installer and the portable ZIP
 both bundle their own Node runtime and their own Chromium, so exports (HTML,
 PDF, PPTX) work fully offline.
 
-**Latest stable: ARCLUME 1.0.1**
+**Latest stable: ARCLUME 1.0.2**
 
 | Download | What it is |
 | --- | --- |
-| [ARCLUME-Setup-1.0.1.exe](https://github.com/kerwilgil/arclume/releases/download/v1.0.1/ARCLUME-Setup-1.0.1.exe) | Windows installer (per-user, no admin rights) |
-| [ARCLUME-1.0.1-portable.zip](https://github.com/kerwilgil/arclume/releases/download/v1.0.1/ARCLUME-1.0.1-portable.zip) | Self-contained portable build |
-| [SHA256SUMS.txt](https://github.com/kerwilgil/arclume/releases/download/v1.0.1/SHA256SUMS.txt) | SHA-256 checksums for both artifacts |
+| [ARCLUME-Setup-1.0.2.exe](https://github.com/kerwilgil/arclume/releases/download/v1.0.2/ARCLUME-Setup-1.0.2.exe) | Windows installer (per-user, no admin rights) |
+| [ARCLUME-1.0.2-portable.zip](https://github.com/kerwilgil/arclume/releases/download/v1.0.2/ARCLUME-1.0.2-portable.zip) | Self-contained portable build |
+| [SHA256SUMS.txt](https://github.com/kerwilgil/arclume/releases/download/v1.0.2/SHA256SUMS.txt) | SHA-256 checksums for both artifacts |
 
 Both artifacts are also available on the
 [GitHub Releases](https://github.com/kerwilgil/arclume/releases) page for every
 tagged version. The builds are not code-signed, so Windows SmartScreen may warn
 on first run.
 
-**1. Installer (recommended).** Run `ARCLUME-Setup-1.0.1.exe`. It installs
+**1. Installer (recommended).** Run `ARCLUME-Setup-1.0.2.exe`. It installs
 per-user into `%LOCALAPPDATA%\Programs\ARCLUME`, adds a Start Menu shortcut
 (and optionally a desktop one), and launches ARCLUME with your browser.
 
-**2. Portable.** Extract `ARCLUME-1.0.1-portable.zip` anywhere — including a
+**2. Portable.** Extract `ARCLUME-1.0.2-portable.zip` anywhere — including a
 path with spaces or a removable drive — and double-click `ARCLUME.exe`.
 
 Verify a download against the published checksums:
 
 ```powershell
-Get-FileHash ARCLUME-Setup-1.0.1.exe -Algorithm SHA256
-Get-FileHash ARCLUME-1.0.1-portable.zip -Algorithm SHA256
+Get-FileHash ARCLUME-Setup-1.0.2.exe -Algorithm SHA256
+Get-FileHash ARCLUME-1.0.2-portable.zip -Algorithm SHA256
 ```
 
 Or, on Linux/macOS with `sha256sum`:
@@ -307,12 +307,12 @@ npx playwright install chromium
 
 ARCLUME has two distribution paths.
 
-**1. Installer (for everyone).** `ARCLUME-Setup-1.0.1.exe` from the
-[release page](https://github.com/kerwilgil/arclume/releases/tag/v1.0.1)
+**1. Installer (for everyone).** `ARCLUME-Setup-1.0.2.exe` from the
+[release page](https://github.com/kerwilgil/arclume/releases/tag/v1.0.2)
 installs per-user, without administrator rights, and adds a Start Menu shortcut
 (and optionally a desktop one). Launch ARCLUME and your browser opens on it.
 
-**2. Portable.** Extract `ARCLUME-1.0.1-portable.zip` anywhere and
+**2. Portable.** Extract `ARCLUME-1.0.2-portable.zip` anywhere and
 double-click `ARCLUME.exe`.
 
 Both carry their own Node.js runtime and their own Chromium, so **nothing else
@@ -338,8 +338,8 @@ requirements and troubleshooting.
 | Visual QA | Stable |
 | Visual Engine | Stable |
 
-**ARCLUME 1.0.1 is the current stable release.** See the
-[release page](https://github.com/kerwilgil/arclume/releases/tag/v1.0.1) for the
+**ARCLUME 1.0.2 is the current stable release.** See the
+[release page](https://github.com/kerwilgil/arclume/releases/tag/v1.0.2) for the
 tagged builds and checksums.
 
 ARCLUME was previously known as ProjectDeck (historical reference only).
@@ -351,7 +351,7 @@ ARCLUME was previously known as ProjectDeck (historical reference only).
 - Themes — [docs/THEMES.md](docs/THEMES.md)
 - Viewer — [docs/VIEWER.md](docs/VIEWER.md)
 - Release notes 1.0.0 — [docs/RELEASE_NOTES_1.0.0.md](docs/RELEASE_NOTES_1.0.0.md)
-- Release notes 1.0.1 — [docs/RELEASE_NOTES_1.0.1.md](docs/RELEASE_NOTES_1.0.1.md)
+- Release notes 1.0.2 — [docs/RELEASE_NOTES_1.0.2.md](docs/RELEASE_NOTES_1.0.2.md)
 - Changelog — [CHANGELOG.md](CHANGELOG.md)
 - Security — [SECURITY.md](SECURITY.md)
 - Third-party notices — [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)

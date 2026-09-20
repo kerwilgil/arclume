@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-09-20
+
+### Fixed
+
+- Restored the Windows native Browse / Examinar source picker.
+- Folder and supported-file selection now return the selected path correctly.
+- Improved source-picker diagnostics for unexpected native-process failures.
+
+### Distribution
+
+- `ARCLUME-Setup-1.0.2.exe` (per-user Inno Setup installer).
+- `ARCLUME-1.0.2-portable.zip` (self-contained portable with bundled runtime).
+- `SHA256SUMS.txt` for both artifacts.
+
 ## [1.0.1] - 2026-09-16
 
 ### Fixed
