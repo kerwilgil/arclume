@@ -67,8 +67,8 @@ Everything from **Project Knowledge** onward is a pure, deterministic function o
 
 | | | |
 | --- | --- | --- |
-| ![Workspace](docs/media/release-1.0.2/01-workspace.png) | ![Evidence Inspector](docs/media/release-1.0.2/02-evidence-inspector.png) | ![Audience & deck types](docs/media/release-1.0.2/03-audience-deck-type.png) |
-| ![Architecture](docs/media/release-1.0.2/04-architecture.png) | ![Final deck preview](docs/media/release-1.0.2/05-final-deck-preview.png) | ![Export](docs/media/release-1.0.2/06-export.png) |
+| ![Workspace](docs/media/release-1.0.1/01-workspace.png) | ![Evidence Inspector](docs/media/release-1.0.1/02-evidence-inspector.png) | ![Audience & deck types](docs/media/release-1.0.1/03-audience-deck-type.png) |
+| ![Architecture](docs/media/release-1.0.1/04-architecture.png) | ![Final deck preview](docs/media/release-1.0.1/05-final-deck-preview.png) | ![Export](docs/media/release-1.0.1/06-export.png) |
 
 The workflow, left to right: create a workspace, inspect the evidence-backed
 knowledge, choose an audience and a deck type, preview the deck, and export.

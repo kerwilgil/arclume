@@ -67,8 +67,8 @@ Todo desde **Project Knowledge** en adelante es una función pura y determinista
 
 | | | |
 | --- | --- | --- |
-| ![Workspace](docs/media/release-1.0.2/01-workspace.png) | ![Inspector de evidencia](docs/media/release-1.0.2/02-evidence-inspector.png) | ![Audiencia y tipos de deck](docs/media/release-1.0.2/03-audience-deck-type.png) |
-| ![Arquitectura](docs/media/release-1.0.2/04-architecture.png) | ![Vista previa del deck final](docs/media/release-1.0.2/05-final-deck-preview.png) | ![Exportación](docs/media/release-1.0.2/06-export.png) |
+| ![Workspace](docs/media/release-1.0.1/01-workspace.png) | ![Inspector de evidencia](docs/media/release-1.0.1/02-evidence-inspector.png) | ![Audiencia y tipos de deck](docs/media/release-1.0.1/03-audience-deck-type.png) |
+| ![Arquitectura](docs/media/release-1.0.1/04-architecture.png) | ![Vista previa del deck final](docs/media/release-1.0.1/05-final-deck-preview.png) | ![Exportación](docs/media/release-1.0.1/06-export.png) |
 
 El flujo, de izquierda a derecha: crea un workspace, inspecciona el
 conocimiento respaldado por evidencia, elige una audiencia y un tipo de deck,
